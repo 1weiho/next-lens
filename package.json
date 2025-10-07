@@ -1,13 +1,34 @@
 {
   "name": "next-lens",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "CLI Tool",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "next-lens": "dist/index.js"
   },
-  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "build:watch": "tsc --project tsconfig.json --watch",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit --pretty",
+    "prepare": "pnpm build"
+  },
+  "keywords": [
+    "next",
+    "cli",
+    "typescript"
+  ],
   "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.18.0"
+  "license": "MIT",
+  "packageManager": "pnpm@10.18.0",
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
 }
