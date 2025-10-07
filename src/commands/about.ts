@@ -2,17 +2,17 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 
 const primary = chalk.cyanBright
+const accent = chalk.green
 const subtle = chalk.dim
-const bullet = chalk.green('●')
 
 const aboutLines = [
   chalk.bold(primary('next-lens')),
   subtle('Explore your Next.js App Router API handlers with clarity.'),
   '',
   chalk.bold('Why it helps'),
-  `${bullet} Quickly list API routes with ${primary('next-lens api:list')}`,
-  `${bullet} Review exported handlers without digging through files`,
-  `${bullet} Stay in flow with a focused CLI experience`,
+  `${accent('●')} Quickly list API routes with ${primary('next-lens api:list')}`,
+  `${accent('●')} Review exported handlers without digging through files`,
+  `${accent('●')} Stay in flow with a focused CLI experience`,
   '',
   subtle('Crafted for curious Next.js developers.'),
 ]
