@@ -13,9 +13,12 @@
     "rootDir": "src",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["dist", "node_modules"]
 }
-
