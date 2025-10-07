@@ -1,3 +1,5 @@
+<img width="1147" height="718" alt="next-lens-2x" src="https://github.com/user-attachments/assets/030afec7-1d70-4a2e-a448-1f74c9890a42" />
+
 # next-lens
 
 `next-lens` is a CLI companion for developers building with the Next.js App Router. It scans your project for API route handlers and turns them into quick insights you can read right from the terminal.
