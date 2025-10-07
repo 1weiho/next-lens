@@ -318,20 +318,17 @@ function renderTable(routes: RouteInfo[]): string {
   const header = chalk.bold("Next.js API Route Atlas");
   const subtitle = chalk.dim(`Mapped ${total} route${total === 1 ? "" : "s"}`);
 
-  const formatted = routes.map((route, index) => ({
-    id: chalk.cyan(`#${String(index + 1).padStart(String(total).length, "0")}`),
+  const formatted = routes.map((route) => ({
     methods: colorizeMethods(route.methods),
     path: highlightDynamicSegments(route.path),
     file: chalk.gray(route.file),
   }));
 
-  const idHeader = chalk.dim("ID");
   const methodHeader = chalk.dim("METHOD");
   const pathHeader = chalk.dim("ROUTE");
   const fileHeader = chalk.dim("SOURCE");
 
   const columnWidths = [
-    Math.max(visibleLength(idHeader), ...formatted.map((entry) => visibleLength(entry.id))),
     Math.max(
       visibleLength(methodHeader),
       ...formatted.map((entry) => visibleLength(entry.methods)),
@@ -344,13 +341,13 @@ function renderTable(routes: RouteInfo[]): string {
   const headerDivider = buildBorder(columnWidths, "-");
 
   const headerRow = buildRow(
-    [idHeader, methodHeader, pathHeader, fileHeader],
+    [methodHeader, pathHeader, fileHeader],
     columnWidths,
     chalk.dim,
   );
 
   const rows = formatted.map((entry) =>
-    buildRow([entry.id, entry.methods, entry.path, entry.file], columnWidths),
+    buildRow([entry.methods, entry.path, entry.file], columnWidths),
   );
 
   return [header, subtitle, chalk.dim(topBorder), headerRow, chalk.dim(headerDivider), ...rows, chalk.dim(topBorder)].join("\n");
