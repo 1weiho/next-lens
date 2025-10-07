@@ -1,15 +1,26 @@
+import chalk from "chalk";
 import { Command } from "commander";
 
-const aboutText = `next-lens
+const primary = chalk.cyanBright;
+const subtle = chalk.dim;
+const bullet = chalk.green("●");
 
-A utility for exploring Next.js App Router API route handlers. Use \`api:list\`
- to inspect the routes in your project and quickly review exported HTTP
- handlers across your application.`;
+const aboutLines = [
+  chalk.bold(primary("next-lens")),
+  subtle("Explore your Next.js App Router API handlers with clarity."),
+  "",
+  chalk.bold("Why it helps"),
+  `${bullet} Quickly list API routes with ${primary("next-lens api:list")}`,
+  `${bullet} Review exported handlers without digging through files`,
+  `${bullet} Stay in flow with a focused CLI experience`,
+  "",
+  subtle("Crafted for curious Next.js developers."),
+];
 
 export const aboutCommand = new Command("about")
   .description("Show information about the next-lens CLI.")
   .action(() => {
-    console.log(aboutText);
+    console.log("\n" + aboutLines.join("\n") + "\n");
   });
 
 export default aboutCommand;
