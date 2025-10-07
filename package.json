@@ -27,6 +27,7 @@
   "packageManager": "pnpm@10.18.0",
   "devDependencies": {
     "@types/node": "^22.5.4",
+    "prettier": "3.6.2",
     "tsup": "^8.5.0",
     "tsx": "^4.16.2",
     "typescript": "^5.5.4"
