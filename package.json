@@ -1,7 +1,7 @@
 {
   "name": "next-lens",
   "version": "0.0.1",
-  "description": "CLI Tool",
+  "description": "A CLI companion for Next.js App Router developers that scans API routes and provides quick insights from the terminal",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,8 +23,15 @@
     "cli",
     "typescript"
   ],
-  "author": "",
+  "author": "Yiwei Ho",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1weiho/next-lens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1weiho/next-lens/issues"
+  },
   "packageManager": "pnpm@10.18.0",
   "devDependencies": {
     "@types/node": "^22.5.4",
