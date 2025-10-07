@@ -45,6 +45,10 @@ const METHOD_COLORS: Record<string, ChalkInstance> = {
 const ANSI_PATTERN = /\u001B\[[0-?]*[ -\/]*[@-~]/g
 const PARAM_COLOR = chalk.hex('#ffae42')
 
+const primary = chalk.cyanBright
+const accent = chalk.green
+const subtle = chalk.dim
+
 const SKIP_DIRECTORIES = new Set([
   'node_modules',
   '.git',
@@ -310,8 +314,10 @@ function sortMethods(methods: string[]): string[] {
 
 function renderTable(routes: RouteInfo[]): string {
   const total = routes.length
-  const header = chalk.bold('Next.js API Route Atlas')
-  const subtitle = chalk.dim(`Mapped ${total} route${total === 1 ? '' : 's'}`)
+  const header = chalk.bold(primary('Next.js API Route Info'))
+  const subtitle = subtle(
+    `Mapped ${accent(total.toString())} route${total === 1 ? '' : 's'}`,
+  )
 
   const formatted = routes.map((route) => ({
     methods: colorizeMethods(route.methods),
@@ -352,8 +358,10 @@ function renderTable(routes: RouteInfo[]): string {
   )
 
   return [
+    '',
     header,
     subtitle,
+    '',
     chalk.dim(topBorder),
     headerRow,
     chalk.dim(headerDivider),
