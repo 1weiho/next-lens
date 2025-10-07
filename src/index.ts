@@ -4,6 +4,7 @@ import { Command } from 'commander'
 
 import aboutCommand from '@/commands/about'
 import apiListCommand from '@/commands/api-list'
+import infoCommand from '@/commands/info'
 
 import packageJson from '../package.json'
 
@@ -17,7 +18,10 @@ async function main() {
       'display the version number',
     )
 
-  program.addCommand(aboutCommand).addCommand(apiListCommand)
+  program
+    .addCommand(aboutCommand)
+    .addCommand(apiListCommand)
+    .addCommand(infoCommand)
 
   await program.parseAsync(process.argv)
 }
