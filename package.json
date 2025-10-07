@@ -12,9 +12,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.json",
-    "build:watch": "tsc --project tsconfig.json --watch",
-    "dev": "tsx watch src/index.ts",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "typecheck": "tsc --noEmit --pretty",
     "prepare": "pnpm build"
   },
@@ -28,6 +27,7 @@
   "packageManager": "pnpm@10.18.0",
   "devDependencies": {
     "@types/node": "^22.5.4",
+    "tsup": "^8.5.0",
     "tsx": "^4.16.2",
     "typescript": "^5.5.4"
   },
