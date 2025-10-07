@@ -14,7 +14,9 @@ const aboutLines = [
   `${accent('●')} Review exported handlers without digging through files`,
   `${accent('●')} Stay in flow with a focused CLI experience`,
   '',
-  subtle('Crafted for curious Next.js developers.'),
+  subtle(
+    `Crafted with ❤️  by \u001b]8;;https://x.com/1weiho\u001b\\Yiwei\u001b]8;;\u001b\\.`,
+  ),
 ]
 
 export const aboutCommand = new Command('about')
