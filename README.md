@@ -2,7 +2,7 @@
 
 # next-lens
 
-`next-lens` is a CLI companion for developers building with the Next.js App Router. It scans your project for API route handlers and turns them into quick insights you can read right from the terminal.
+`next-lens` is a CLI companion for developers building with the Next.js App Router. It scans your project for API route handlers and turns them into quick insights you can read right from the terminal, inspired by Laravel's artisan command.
 
 ## Features
 
