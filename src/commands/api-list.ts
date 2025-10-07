@@ -2,7 +2,6 @@ import { promises as fs } from 'fs'
 import type { Stats } from 'fs'
 import os from 'os'
 import path from 'path'
-import ts from 'typescript'
 import chalk, { type ChalkInstance } from 'chalk'
 import { Command } from 'commander'
 
@@ -223,15 +222,7 @@ function transformSegment(segment: string): string {
 
 async function extractHttpMethods(filePath: string): Promise<string[]> {
   const source = await fs.readFile(filePath, 'utf8')
-  const scriptKind = getScriptKind(filePath)
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    scriptKind,
-  )
-
+  const sanitized = stripComments(source)
   const methods = new Set<string>()
 
   const register = (name: string | undefined) => {
@@ -240,65 +231,59 @@ async function extractHttpMethods(filePath: string): Promise<string[]> {
     if (HTTP_METHODS.has(upper)) methods.add(upper)
   }
 
-  sourceFile.forEachChild((node) => {
-    if (ts.isFunctionDeclaration(node)) {
-      if (hasExportModifier(node.modifiers) && node.name) {
-        register(node.name.text)
-      }
-      return
-    }
+  let match: RegExpExecArray | null
 
-    if (ts.isVariableStatement(node) && hasExportModifier(node.modifiers)) {
-      for (const declaration of node.declarationList.declarations) {
-        if (ts.isIdentifier(declaration.name)) {
-          register(declaration.name.text)
-          continue
-        }
+  while ((match = FUNCTION_EXPORT_PATTERN.exec(sanitized))) {
+    register(match[1])
+  }
 
-        if (ts.isObjectBindingPattern(declaration.name)) {
-          for (const element of declaration.name.elements) {
-            if (ts.isIdentifier(element.name)) {
-              register(element.name.text)
-            }
-          }
-        }
-      }
-      return
-    }
+  while ((match = VARIABLE_EXPORT_PATTERN.exec(sanitized))) {
+    register(match[1])
+  }
 
-    if (ts.isExportDeclaration(node) && node.exportClause) {
-      if (ts.isNamedExports(node.exportClause)) {
-        for (const specifier of node.exportClause.elements) {
-          register(specifier.name.text)
-        }
-      }
-    }
-  })
+  while ((match = DESTRUCTURED_EXPORT_PATTERN.exec(sanitized))) {
+    const names = extractExportedNames(match[1])
+    for (const name of names) register(name)
+  }
+
+  while ((match = NAMED_EXPORT_PATTERN.exec(sanitized))) {
+    const names = extractExportedNames(match[1])
+    for (const name of names) register(name)
+  }
 
   return Array.from(methods)
 }
 
-function getScriptKind(filePath: string): ts.ScriptKind {
-  const ext = path.extname(filePath)
-  switch (ext) {
-    case '.ts':
-      return ts.ScriptKind.TS
-    case '.tsx':
-      return ts.ScriptKind.TSX
-    case '.jsx':
-      return ts.ScriptKind.JSX
-    default:
-      return ts.ScriptKind.JS
-  }
+const COMMENT_BLOCK_PATTERN = /\/\*[\s\S]*?\*\//g
+const COMMENT_LINE_PATTERN = /(^|[^\S\r\n])\/\/.*$/gm
+const FUNCTION_EXPORT_PATTERN =
+  /\bexport\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/g
+const VARIABLE_EXPORT_PATTERN =
+  /\bexport\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g
+const DESTRUCTURED_EXPORT_PATTERN =
+  /\bexport\s+(?:const|let|var)\s*{\s*([^}]+)\s*}\s*=/g
+const NAMED_EXPORT_PATTERN = /\bexport\s*{([^}]+)}/g
+
+function stripComments(source: string): string {
+  return source
+    .replace(COMMENT_BLOCK_PATTERN, ' ')
+    .replace(COMMENT_LINE_PATTERN, (_, prefix: string = '') => prefix)
 }
 
-function hasExportModifier(
-  modifiers: ts.NodeArray<ts.ModifierLike> | undefined,
-) {
-  if (!modifiers) return false
-  return modifiers.some(
-    (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
-  )
+function extractExportedNames(list: string): string[] {
+  return list
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const match = entry.match(
+        /^([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/i,
+      )
+      if (!match) return ''
+      const [, original, alias] = match
+      return (alias ?? original).trim()
+    })
+    .filter(Boolean)
 }
 
 function sortMethods(methods: string[]): string[] {
