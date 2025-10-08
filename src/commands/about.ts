@@ -15,7 +15,7 @@ const aboutLines = [
   `${accent('●')} Stay in flow with a focused CLI experience`,
   '',
   subtle(
-    `Crafted with ❤️  by \u001b]8;;https://x.com/1weiho\u001b\\Yiwei\u001b]8;;\u001b\\.`,
+    `Crafted with ❤️ by \u001b]8;;https://1wei.dev\u001b\\Yiwei\u001b]8;;\u001b\\.`,
   ),
 ]
 
