@@ -282,7 +282,7 @@ function renderTable(pages: PageInfo[]): string {
   }))
 
   const pathHeader = chalk.dim('ROUTE')
-  const statesHeader = chalk.dim('STATES')
+  const statesHeader = chalk.dim('STATES UI')
   const fileHeader = chalk.dim('SOURCE')
 
   const columnWidths = [
