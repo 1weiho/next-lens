@@ -22,12 +22,12 @@ npx next-lens@latest [command] [target-directory]
 
 ### Available commands
 
-| Command                                   | Description                                                                                                |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `next-lens about`                         | Prints a one-page summary of what the tool does.                                                           |
-| `next-lens api:list [target-directory]`   | Recursively finds App Router API route files and renders a table with detected HTTP handlers.              |
-| `next-lens route:list [target-directory]` | Lists page routes and indicates whether `loading`/`error` UI files exist locally or via ancestor segments. |
-| `next-lens info [target-directory]`       | Reports the installed versions of Next.js, React, Node, `next-lens`, and the detected package manager.     |
+| Command                                  | Description                                                                                                |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `next-lens about`                        | Prints a one-page summary of what the tool does.                                                           |
+| `next-lens api:list [target-directory]`  | Recursively finds App Router API route files and renders a table with detected HTTP handlers.              |
+| `next-lens page:list [target-directory]` | Lists page routes and indicates whether `loading`/`error` UI files exist locally or via ancestor segments. |
+| `next-lens info [target-directory]`      | Reports the installed versions of Next.js, React, Node, `next-lens`, and the detected package manager.     |
 
 #### Example: list API routes
 
@@ -52,7 +52,7 @@ HTTP methods are color-coded, and dynamic segments such as `:id` or `:slug*` are
 #### Example: list page routes
 
 ```bash
-npx next-lens@latest route:list
+npx next-lens@latest page:list
 ```
 
 Sample output:

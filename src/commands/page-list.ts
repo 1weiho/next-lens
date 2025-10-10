@@ -47,7 +47,7 @@ const FALLBACK_EXTENSIONS = PAGE_EXTENSIONS
 const ANSI_PATTERN = /\u001B\[[0-?]*[ -\/]*[@-~]/g
 const PARAM_COLOR = chalk.hex('#ffae42')
 
-export const routeListCommand = new Command('route:list')
+export const pageListCommand = new Command('page:list')
   .description('List Next.js App Router page routes in a table view.')
   .argument(
     '[target-directory]',
@@ -393,4 +393,4 @@ function renderLegend(): string {
   return chalk.dim(`Legend: ${local}  ${inherited}  ${missing}`)
 }
 
-export default routeListCommand
+export default pageListCommand
