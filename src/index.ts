@@ -5,6 +5,7 @@ import { Command } from 'commander'
 import aboutCommand from '@/commands/about'
 import apiListCommand from '@/commands/api-list'
 import infoCommand from '@/commands/info'
+import pageListCommand from '@/commands/page-list'
 
 import packageJson from '../package.json'
 
@@ -21,6 +22,7 @@ async function main() {
   program
     .addCommand(aboutCommand)
     .addCommand(apiListCommand)
+    .addCommand(pageListCommand)
     .addCommand(infoCommand)
 
   await program.parseAsync(process.argv)
