@@ -5,11 +5,13 @@ import path from 'path'
 import chalk from 'chalk'
 import { Command } from 'commander'
 
+type FallbackStatus = 'local' | 'inherited' | 'missing'
+
 type PageInfo = {
   file: string
   path: string
-  hasLoading: boolean
-  hasError: boolean
+  loading: FallbackStatus
+  error: FallbackStatus
 }
 
 const primary = chalk.cyanBright
@@ -171,9 +173,10 @@ async function derivePageMeta(
       : '/' + cleanedSegments.map(transformSegment).join('/')
 
   const directory = path.dirname(filePath)
-  const [hasLoading, hasError] = await Promise.all([
-    hasFallbackFile(directory, 'loading'),
-    hasFallbackFile(directory, 'error'),
+  const appRootPath = path.join(root, ...segments.slice(0, appIndex + 1))
+  const [loading, error] = await Promise.all([
+    resolveFallbackStatus(directory, 'loading', appRootPath),
+    resolveFallbackStatus(directory, 'error', appRootPath),
   ])
 
   const normalizedFile = relativePath.split(path.sep).join('/')
@@ -181,8 +184,8 @@ async function derivePageMeta(
   return {
     file: normalizedFile,
     path: routePath,
-    hasLoading,
-    hasError,
+    loading,
+    error,
   }
 }
 
@@ -210,6 +213,42 @@ async function hasFallbackFile(
   return false
 }
 
+async function resolveFallbackStatus(
+  directory: string,
+  basename: 'loading' | 'error',
+  appRootPath: string,
+): Promise<FallbackStatus> {
+  let current = directory
+  let isFirst = true
+
+  while (isWithinAppRoot(current, appRootPath)) {
+    if (await hasFallbackFile(current, basename)) {
+      return isFirst ? 'local' : 'inherited'
+    }
+
+    if (pathsEqual(current, appRootPath)) break
+
+    const parent = path.dirname(current)
+    if (pathsEqual(parent, current)) break
+
+    current = parent
+    isFirst = false
+  }
+
+  return 'missing'
+}
+
+function isWithinAppRoot(directory: string, appRootPath: string): boolean {
+  const relative = path.relative(appRootPath, directory)
+  if (relative === '') return true
+  if (relative.startsWith('..')) return false
+  return !path.isAbsolute(relative)
+}
+
+function pathsEqual(a: string, b: string): boolean {
+  return path.resolve(a) === path.resolve(b)
+}
+
 function transformSegment(segment: string): string {
   const optionalCatchAll = segment.match(/^\[\[\.\.\.(.+)]]$/)
   if (optionalCatchAll) {
@@ -231,19 +270,19 @@ function transformSegment(segment: string): string {
 
 function renderTable(pages: PageInfo[]): string {
   const total = pages.length
-  const header = chalk.bold(primary('Next.js Route Info'))
+  const header = chalk.bold(primary('Next.js Page Route Info'))
   const subtitle = subtle(
     `Mapped ${accent(total.toString())} page${total === 1 ? '' : 's'}`,
   )
 
   const formatted = pages.map((page) => ({
     path: highlightDynamicSegments(page.path),
-    states: formatRouteStates(page.hasLoading, page.hasError),
+    states: formatRouteStates(page.loading, page.error),
     file: chalk.gray(page.file),
   }))
 
   const pathHeader = chalk.dim('ROUTE')
-  const statesHeader = chalk.dim('STATES COMPONENTS')
+  const statesHeader = chalk.dim('STATES')
   const fileHeader = chalk.dim('SOURCE')
 
   const columnWidths = [
@@ -284,19 +323,37 @@ function renderTable(pages: PageInfo[]): string {
     chalk.dim(headerDivider),
     ...rows,
     chalk.dim(topBorder),
+    '',
+    renderLegend(),
   ].join('\n')
 }
 
-function formatRouteStates(hasLoading: boolean, hasError: boolean): string {
-  const loadingLabel = hasLoading
-    ? accent('●') + subtle(' loading')
-    : chalk.gray('○') + subtle(' loading')
-
-  const errorLabel = hasError
-    ? chalk.redBright('●') + subtle(' error')
-    : chalk.gray('○') + subtle(' error')
-
+function formatRouteStates(
+  loadingStatus: FallbackStatus,
+  errorStatus: FallbackStatus,
+): string {
+  const loadingLabel = formatStateLabel('loading', loadingStatus)
+  const errorLabel = formatStateLabel('error', errorStatus)
   return `${loadingLabel}  ${errorLabel}`
+}
+
+function formatStateLabel(
+  kind: 'loading' | 'error',
+  status: FallbackStatus,
+): string {
+  const activeColor = kind === 'loading' ? accent : chalk.redBright
+  const symbol = symbolForStatus(status, activeColor)
+  const label = subtle(` ${kind}`)
+  return `${symbol}${label}`
+}
+
+function symbolForStatus(
+  status: FallbackStatus,
+  activeColor: (text: string) => string,
+): string {
+  if (status === 'local') return activeColor('●')
+  if (status === 'inherited') return activeColor('◐')
+  return chalk.gray('○')
 }
 
 function highlightDynamicSegments(pathLabel: string): string {
@@ -327,6 +384,13 @@ function padEndAnsi(text: string, target: number): string {
 
 function visibleLength(text: string): number {
   return text.replace(ANSI_PATTERN, '').length
+}
+
+function renderLegend(): string {
+  const local = chalk.whiteBright('● local')
+  const inherited = chalk.whiteBright('◐ inherited')
+  const missing = chalk.whiteBright('○ missing')
+  return chalk.dim(`Legend: ${local}  ${inherited}  ${missing}`)
 }
 
 export default routeListCommand
