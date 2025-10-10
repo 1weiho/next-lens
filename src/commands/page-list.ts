@@ -5,7 +5,7 @@ import path from 'path'
 import chalk from 'chalk'
 import { Command } from 'commander'
 
-type FallbackStatus = 'local' | 'inherited' | 'missing'
+type FallbackStatus = 'co-located' | 'inherited' | 'missing'
 
 type PageInfo = {
   file: string
@@ -223,7 +223,7 @@ async function resolveFallbackStatus(
 
   while (isWithinAppRoot(current, appRootPath)) {
     if (await hasFallbackFile(current, basename)) {
-      return isFirst ? 'local' : 'inherited'
+      return isFirst ? 'co-located' : 'inherited'
     }
 
     if (pathsEqual(current, appRootPath)) break
@@ -282,7 +282,7 @@ function renderTable(pages: PageInfo[]): string {
   }))
 
   const pathHeader = chalk.dim('ROUTE')
-  const statesHeader = chalk.dim('STATES UI')
+  const statesHeader = chalk.dim('STATE UI')
   const fileHeader = chalk.dim('SOURCE')
 
   const columnWidths = [
@@ -351,7 +351,7 @@ function symbolForStatus(
   status: FallbackStatus,
   activeColor: (text: string) => string,
 ): string {
-  if (status === 'local') return activeColor('●')
+  if (status === 'co-located') return activeColor('●')
   if (status === 'inherited') return activeColor('◐')
   return chalk.gray('○')
 }
@@ -387,10 +387,10 @@ function visibleLength(text: string): number {
 }
 
 function renderLegend(): string {
-  const local = chalk.whiteBright('● local')
+  const coLocated = chalk.whiteBright('● co-located')
   const inherited = chalk.whiteBright('◐ inherited')
   const missing = chalk.whiteBright('○ missing')
-  return chalk.dim(`Legend: ${local}  ${inherited}  ${missing}`)
+  return chalk.dim(`${coLocated}  ${inherited}  ${missing}`)
 }
 
 export default pageListCommand
