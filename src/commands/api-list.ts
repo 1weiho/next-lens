@@ -299,7 +299,7 @@ function sortMethods(methods: string[]): string[] {
 
 function renderTable(routes: RouteInfo[]): string {
   const total = routes.length
-  const header = chalk.bold(primary('Next.js API Route Info'))
+  const header = chalk.bold(primary('Next.js API Info'))
   const subtitle = subtle(
     `Mapped ${accent(total.toString())} route${total === 1 ? '' : 's'}`,
   )

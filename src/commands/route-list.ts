@@ -231,7 +231,7 @@ function transformSegment(segment: string): string {
 
 function renderTable(pages: PageInfo[]): string {
   const total = pages.length
-  const header = chalk.bold(primary('Next.js Page Route Info'))
+  const header = chalk.bold(primary('Next.js Route Info'))
   const subtitle = subtle(
     `Mapped ${accent(total.toString())} page${total === 1 ? '' : 's'}`,
   )
