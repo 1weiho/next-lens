@@ -7,7 +7,7 @@ import { Command } from 'commander'
 
 type FallbackStatus = 'co-located' | 'inherited' | 'missing'
 
-type PageInfo = {
+export type PageInfo = {
   file: string
   path: string
   loading: FallbackStatus
@@ -62,7 +62,9 @@ export const pageListCommand = new Command('page:list')
     }
   })
 
-async function listPageRoutes(targetDirectory: string | null) {
+export async function listPageRoutes(
+  targetDirectory: string | null,
+): Promise<PageInfo[]> {
   const resolvedTarget = resolveTargetDirectory(targetDirectory)
   const root = await ensureDirectory(resolvedTarget)
 
@@ -78,7 +80,7 @@ async function listPageRoutes(targetDirectory: string | null) {
 
   if (!pages.length) {
     console.log(`No page routes found under ${root}`)
-    return
+    return []
   }
 
   pages.sort((a, b) => {
@@ -88,6 +90,8 @@ async function listPageRoutes(targetDirectory: string | null) {
   })
 
   console.log(renderTable(pages))
+
+  return pages
 }
 
 function resolveTargetDirectory(target: string | null): string {

@@ -5,7 +5,7 @@ import path from 'path'
 import chalk, { type ChalkInstance } from 'chalk'
 import { Command } from 'commander'
 
-type RouteInfo = {
+export type RouteInfo = {
   file: string
   methods: string[]
   path: string
@@ -78,7 +78,9 @@ export const apiListCommand = new Command('api:list')
     }
   })
 
-async function listApiRoutes(targetDirectory: string | null) {
+export async function listApiRoutes(
+  targetDirectory: string | null,
+): Promise<RouteInfo[]> {
   const resolvedTarget = resolveTargetDirectory(targetDirectory)
   const root = await ensureDirectory(resolvedTarget)
 
@@ -97,7 +99,7 @@ async function listApiRoutes(targetDirectory: string | null) {
 
   if (!routes.length) {
     console.log(`No API routes found under ${root}`)
-    return
+    return []
   }
 
   routes.sort((a, b) => {
@@ -110,6 +112,8 @@ async function listApiRoutes(targetDirectory: string | null) {
   })
 
   console.log(renderTable(routes))
+
+  return routes
 }
 
 function resolveTargetDirectory(target: string | null): string {
