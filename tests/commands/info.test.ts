@@ -28,8 +28,8 @@ describe('collectInsights', () => {
         },
       },
       packageManager: 'pnpm (lockfile)',
-      nextVersion: '14.3.1',
-      reactVersion: '18.3.0',
+      nextVersion: '14.2.3',
+      reactVersion: '18.2.0',
     })
   })
 
