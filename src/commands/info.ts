@@ -6,14 +6,16 @@ import { Command } from 'commander'
 
 import packageJson from '../../package.json'
 
-type PackageJson = {
+export type PackageJson = {
+  name?: string
+  version?: string
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
   packageManager?: string
 }
 
-type ProjectInsights = {
+export type ProjectInsights = {
   root: string
   manifest: PackageJson | null
   packageManager: string | null
@@ -45,7 +47,7 @@ export const infoCommand = new Command('info')
     }
   })
 
-async function collectInsights(targetDirectory: string | null) {
+export async function collectInsights(targetDirectory: string | null) {
   const root = await resolveRoot(targetDirectory)
   const manifest = await readManifest(root)
 
