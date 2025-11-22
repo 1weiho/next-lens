@@ -38,11 +38,6 @@ export const mcpCommand = new Command('mcp')
                   description:
                     'Path to the Next.js project (optional, defaults to current directory)',
                 },
-                search: {
-                  type: 'string',
-                  description:
-                    'Search term to filter routes by path (optional)',
-                },
               },
             },
           },
@@ -57,11 +52,45 @@ export const mcpCommand = new Command('mcp')
                   description:
                     'Path to the Next.js project (optional, defaults to current directory)',
                 },
+              },
+            },
+          },
+          {
+            name: 'api-search',
+            description: 'Search Next.js App Router API routes by path',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                targetDirectory: {
+                  type: 'string',
+                  description:
+                    'Path to the Next.js project (optional, defaults to current directory)',
+                },
                 search: {
                   type: 'string',
-                  description: 'Search term to filter pages by path (optional)',
+                  description: 'Search term to filter routes by path',
                 },
               },
+              required: ['search'],
+            },
+          },
+          {
+            name: 'page-search',
+            description: 'Search Next.js App Router page routes by path',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                targetDirectory: {
+                  type: 'string',
+                  description:
+                    'Path to the Next.js project (optional, defaults to current directory)',
+                },
+                search: {
+                  type: 'string',
+                  description: 'Search term to filter pages by path',
+                },
+              },
+              required: ['search'],
             },
           },
         ],
@@ -75,13 +104,45 @@ export const mcpCommand = new Command('mcp')
         if (name === 'api-list') {
           const schema = z.object({
             targetDirectory: z.string().optional(),
-            search: z.string().optional(),
+          })
+          const { targetDirectory } = schema.parse(args)
+          const routes = await getApiRoutes(targetDirectory ?? null)
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(routes, null, 2),
+              },
+            ],
+          }
+        }
+
+        if (name === 'page-list') {
+          const schema = z.object({
+            targetDirectory: z.string().optional(),
+          })
+          const { targetDirectory } = schema.parse(args)
+          const pages = await getPageRoutes(targetDirectory ?? null)
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(pages, null, 2),
+              },
+            ],
+          }
+        }
+
+        if (name === 'api-search') {
+          const schema = z.object({
+            targetDirectory: z.string().optional(),
+            search: z.string(),
           })
           const { targetDirectory, search } = schema.parse(args)
           const routes = await getApiRoutes(targetDirectory ?? null)
-          const filteredRoutes = search
-            ? routes.filter((r) => r.path.includes(search))
-            : routes
+          const filteredRoutes = routes.filter((r) => r.path.includes(search))
 
           return {
             content: [
@@ -93,16 +154,14 @@ export const mcpCommand = new Command('mcp')
           }
         }
 
-        if (name === 'page-list') {
+        if (name === 'page-search') {
           const schema = z.object({
             targetDirectory: z.string().optional(),
-            search: z.string().optional(),
+            search: z.string(),
           })
           const { targetDirectory, search } = schema.parse(args)
           const pages = await getPageRoutes(targetDirectory ?? null)
-          const filteredPages = search
-            ? pages.filter((p) => p.path.includes(search))
-            : pages
+          const filteredPages = pages.filter((p) => p.path.includes(search))
 
           return {
             content: [
