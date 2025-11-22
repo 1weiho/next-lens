@@ -29,7 +29,7 @@ export const mcpCommand = new Command('mcp')
         tools: [
           {
             name: 'api-list',
-            description: 'List Next.js App Router API routes',
+            description: 'List and search Next.js App Router API routes',
             inputSchema: {
               type: 'object',
               properties: {
@@ -48,7 +48,7 @@ export const mcpCommand = new Command('mcp')
           },
           {
             name: 'page-list',
-            description: 'List Next.js App Router page routes',
+            description: 'List and search Next.js App Router page routes',
             inputSchema: {
               type: 'object',
               properties: {
