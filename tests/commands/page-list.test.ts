@@ -95,10 +95,18 @@ describe('page:list command', () => {
   })
 
   it('shows message when no pages are found', async () => {
-    const pages = await getPageRoutes(fixtureRoot)
+    // Use a directory without any page.tsx files
+    const emptyProjectPath = path.join(
+      __dirname,
+      '..',
+      'fixtures',
+      'mock-info-package-manager',
+    )
 
-    // Verify the fixture has pages
-    expect(pages.length).toBeGreaterThan(0)
+    await pageListCommand.parseAsync(['node', 'test', emptyProjectPath])
+
+    expect(logSpy).toHaveBeenCalledWith('No page routes found')
+    expect(exitSpy).not.toHaveBeenCalled()
   })
 
   it('handles errors gracefully with exit code 1', async () => {
