@@ -20,6 +20,27 @@ Run commands from the root of a Next.js project, or pass a path to another proje
 npx next-lens@latest [command] [target-directory]
 ```
 
+## MCP integration
+
+`next-lens` can also be exposed through the Model Context Protocol (MCP) so IDEs or AI copilots can invoke the same project insights programmatically. The flow is straightforward:
+
+1. Register an MCP server entry (for example `next-lens`) in your MCP client config that points to the `mcp` subcommand.
+2. When the client boots, it launches `npx next-lens@latest mcp`, which communicates over stdin/stdout and streams route metadata on demand.
+3. Any MCP-aware tool can then send requests to that server to retrieve the same API, page, and version data available via the CLI.
+
+Add the following minimal JSON snippet to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "next-lens": {
+      "command": "npx",
+      "args": ["next-lens@latest", "mcp"]
+    }
+  }
+}
+```
+
 ### Available commands
 
 | Command                                  | Description                                                                                                   |
