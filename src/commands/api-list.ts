@@ -1,6 +1,6 @@
 import chalk, { type ChalkInstance } from 'chalk'
 import { Command } from 'commander'
-import { getApiRoutes, type RouteInfo } from '../lib/api-routes'
+import { getApiRoutes, HTTP_METHODS, type RouteInfo } from '../lib/api-routes'
 
 const METHOD_COLORS: Record<string, ChalkInstance> = {
   GET: chalk.greenBright,
@@ -25,12 +25,32 @@ export const apiListCommand = new Command('api:list')
     '[target-directory]',
     'Path to the Next.js project (defaults to the current working directory)',
   )
-  .action(async (targetDirectory) => {
+  .option(
+    '-m, --method <method>',
+    'Filter routes by HTTP method (case-insensitive, e.g., GET, post, PUT)',
+  )
+  .action(async (targetDirectory, options) => {
     try {
-      const routes = await getApiRoutes(targetDirectory ?? null)
+      // Validate method if provided
+      if (options.method) {
+        const normalizedMethod = options.method.toUpperCase()
+        if (!HTTP_METHODS.has(normalizedMethod)) {
+          const validMethods = Array.from(HTTP_METHODS).join(', ')
+          console.error(
+            `Invalid HTTP method: ${options.method}\nValid methods are: ${validMethods}`,
+          )
+          process.exit(1)
+        }
+      }
+
+      const routes = await getApiRoutes(targetDirectory ?? null, options.method)
 
       if (!routes.length) {
-        console.log(`No API routes found`)
+        console.log(
+          options.method
+            ? `No API routes found with method ${options.method.toUpperCase()}`
+            : `No API routes found`,
+        )
         return
       }
 

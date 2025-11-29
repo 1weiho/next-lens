@@ -13,7 +13,7 @@ export type RouteInfo = {
   path: string
 }
 
-const HTTP_METHODS = new Set([
+export const HTTP_METHODS = new Set([
   'GET',
   'HEAD',
   'OPTIONS',
@@ -48,11 +48,15 @@ const NAMED_EXPORT_PATTERN = /\bexport\s*{([^}]+)}/g
 
 export async function getApiRoutes(
   targetDirectory: string | null,
+  methodFilter?: string,
 ): Promise<RouteInfo[]> {
   const resolvedTarget = resolveTargetDirectory(targetDirectory)
   const root = await ensureDirectory(resolvedTarget)
 
   const routeFiles = await findRouteFiles(root)
+
+  // Normalize method filter to uppercase for case-insensitive matching
+  const normalizedFilter = methodFilter?.toUpperCase()
 
   const routes: RouteInfo[] = []
   for (const filePath of routeFiles) {
@@ -62,7 +66,13 @@ export async function getApiRoutes(
     const methods = await extractHttpMethods(filePath)
     if (!methods.length) continue
 
-    routes.push({ ...routeMeta, methods: sortMethods(methods) })
+    const filteredMethods = normalizedFilter
+      ? methods.filter((method) => method === normalizedFilter)
+      : methods
+
+    if (!filteredMethods.length) continue
+
+    routes.push({ ...routeMeta, methods: sortMethods(filteredMethods) })
   }
 
   routes.sort((a, b) => {
