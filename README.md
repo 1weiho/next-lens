@@ -43,12 +43,12 @@ Add the following minimal JSON snippet to your MCP client configuration:
 
 ### Available commands
 
-| Command                                  | Description                                                                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `next-lens about`                        | Prints a one-page summary of what the tool does.                                                              |
-| `next-lens api:list [target-directory]`  | Recursively finds App Router API route files and renders a table with detected HTTP handlers.                 |
-| `next-lens page:list [target-directory]` | Lists page routes and indicates whether `loading`/`error` UI files exist co-located or via ancestor segments. |
-| `next-lens info [target-directory]`      | Reports the installed versions of Next.js, React, Node, `next-lens`, and the detected package manager.        |
+| Command                                                | Description                                                                                                   |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `next-lens about`                                      | Prints a one-page summary of what the tool does.                                                              |
+| `next-lens api:list [target-directory] [-m, --method]` | Recursively finds App Router API route files and renders a table with detected HTTP handlers.                 |
+| `next-lens page:list [target-directory]`               | Lists page routes and indicates whether `loading`/`error` UI files exist co-located or via ancestor segments. |
+| `next-lens info [target-directory]`                    | Reports the installed versions of Next.js, React, Node, `next-lens`, and the detected package manager.        |
 
 #### Example: list API routes
 
@@ -69,6 +69,21 @@ Mapped 4 routes
 ```
 
 HTTP methods are color-coded, and dynamic segments such as `:id` or `:slug*` are highlighted so you can spot optional and catch-all parameters quickly.
+
+**Filter by HTTP method**
+
+You can filter routes by HTTP method using the `--method` (or `-m`) option. The filter is case-insensitive:
+
+```bash
+# Show only POST routes
+npx next-lens@latest api:list --method POST
+
+# Case-insensitive (post, Post, POST all work)
+npx next-lens@latest api:list --method get
+npx next-lens@latest api:list -m delete
+
+# Valid methods: GET, HEAD, OPTIONS, POST, PUT, PATCH, DELETE
+```
 
 #### Example: list page routes
 
