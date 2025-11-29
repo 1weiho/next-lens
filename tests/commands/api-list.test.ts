@@ -127,4 +127,91 @@ describe('api:list command', () => {
     expect(printed).toMatch(/\+[-]+\+/) // Header divider
     expect(printed).toMatch(/\|.*\|/) // Row structure
   })
+
+  it('filters routes by HTTP method using --method option', async () => {
+    const command = await getCommand()
+    await command.parseAsync(['node', 'test', fixtureRoot, '--method', 'POST'])
+
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    const printed = stripAnsi(String(logSpy.mock.calls[0]?.[0] ?? ''))
+
+    // Should only show POST routes
+    expect(printed).toContain('POST')
+    expect(printed).toContain('/api/ping')
+    expect(printed).toContain('/api/files/:parts*')
+
+    // Should not show GET-only routes
+    expect(printed).not.toContain('/api/hello')
+  })
+
+  it('filters routes case-insensitively', async () => {
+    const command = await getCommand()
+    await command.parseAsync(['node', 'test', fixtureRoot, '--method', 'get'])
+
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    const printed = stripAnsi(String(logSpy.mock.calls[0]?.[0] ?? ''))
+
+    // Should show GET routes
+    expect(printed).toContain('GET')
+    expect(printed).toContain('/api/hello')
+    expect(printed).toContain('/api/users/:id')
+  })
+
+  it('shows appropriate message when no routes match filter', async () => {
+    const command = await getCommand()
+    await command.parseAsync([
+      'node',
+      'test',
+      fixtureRoot,
+      '--method',
+      'OPTIONS',
+    ])
+
+    expect(logSpy).toHaveBeenCalledWith(
+      'No API routes found with method OPTIONS',
+    )
+  })
+
+  it('supports -m short option for method filter', async () => {
+    const command = await getCommand()
+    await command.parseAsync(['node', 'test', fixtureRoot, '-m', 'DELETE'])
+
+    expect(logSpy).toHaveBeenCalledTimes(1)
+    const printed = stripAnsi(String(logSpy.mock.calls[0]?.[0] ?? ''))
+
+    // Should show DELETE routes
+    expect(printed).toContain('DELETE')
+    expect(printed).toContain('/api/users/:id')
+  })
+
+  it('rejects invalid HTTP method with error message', async () => {
+    const command = await getCommand()
+    await command.parseAsync([
+      'node',
+      'test',
+      fixtureRoot,
+      '--method',
+      'INVALID',
+    ])
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Invalid HTTP method: INVALID'),
+    )
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Valid methods are:'),
+    )
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('GET'))
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('POST'))
+    expect(exitSpy).toHaveBeenCalledWith(1)
+  })
+
+  it('rejects invalid HTTP method case-insensitively', async () => {
+    const command = await getCommand()
+    await command.parseAsync(['node', 'test', fixtureRoot, '--method', 'foo'])
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Invalid HTTP method: foo'),
+    )
+    expect(exitSpy).toHaveBeenCalledWith(1)
+  })
 })

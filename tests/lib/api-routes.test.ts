@@ -91,4 +91,64 @@ describe('getApiRoutes', () => {
     expect(marketingRoute?.path).toBe('/api/ping')
     expect(marketingRoute?.path).not.toContain('(marketing)')
   })
+
+  it('filters routes by HTTP method', async () => {
+    const routes = await getApiRoutes(fixtureRoot, 'GET')
+
+    // Should only return routes that have GET method
+    expect(routes).toStrictEqual<RouteInfo[]>([
+      {
+        file: 'app/api/files/[...parts]/route.ts',
+        methods: ['GET'],
+        path: '/api/files/:parts*',
+      },
+      {
+        file: 'app/api/hello/route.ts',
+        methods: ['GET'],
+        path: '/api/hello',
+      },
+      {
+        file: 'app/api/users/[id]/route.ts',
+        methods: ['GET'],
+        path: '/api/users/:id',
+      },
+    ])
+  })
+
+  it('filters routes by HTTP method case-insensitively', async () => {
+    const routesUpperCase = await getApiRoutes(fixtureRoot, 'POST')
+    const routesLowerCase = await getApiRoutes(fixtureRoot, 'post')
+    const routesMixedCase = await getApiRoutes(fixtureRoot, 'Post')
+
+    // All should return the same results
+    expect(routesUpperCase).toStrictEqual(routesLowerCase)
+    expect(routesUpperCase).toStrictEqual(routesMixedCase)
+
+    expect(routesUpperCase).toStrictEqual<RouteInfo[]>([
+      {
+        file: 'app/api/files/[...parts]/route.ts',
+        methods: ['POST'],
+        path: '/api/files/:parts*',
+      },
+      {
+        file: 'app/(marketing)/api/ping/route.ts',
+        methods: ['POST'],
+        path: '/api/ping',
+      },
+    ])
+  })
+
+  it('returns empty array when no routes match the filter', async () => {
+    const routes = await getApiRoutes(fixtureRoot, 'OPTIONS')
+
+    expect(routes).toStrictEqual([])
+  })
+
+  it('returns all routes when no filter is provided', async () => {
+    const routesWithoutFilter = await getApiRoutes(fixtureRoot)
+    const routesWithUndefined = await getApiRoutes(fixtureRoot, undefined)
+
+    expect(routesWithoutFilter).toStrictEqual(routesWithUndefined)
+    expect(routesWithoutFilter.length).toBeGreaterThan(0)
+  })
 })

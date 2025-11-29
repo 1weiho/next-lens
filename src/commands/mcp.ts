@@ -6,7 +6,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import { Command } from 'commander'
 import { z } from 'zod'
-import { getApiRoutes } from '../lib/api-routes'
+import { getApiRoutes, HTTP_METHODS } from '../lib/api-routes'
 import { getPageRoutes } from '../lib/page-routes'
 
 export const mcpCommand = new Command('mcp')
@@ -37,6 +37,11 @@ export const mcpCommand = new Command('mcp')
                   type: 'string',
                   description:
                     'Path to the Next.js project (optional, defaults to current directory)',
+                },
+                method: {
+                  type: 'string',
+                  description:
+                    'Filter routes by HTTP method (case-insensitive, e.g., GET, post, PUT)',
                 },
               },
             },
@@ -69,6 +74,11 @@ export const mcpCommand = new Command('mcp')
                 search: {
                   type: 'string',
                   description: 'Search term to filter routes by path',
+                },
+                method: {
+                  type: 'string',
+                  description:
+                    'Filter routes by HTTP method (case-insensitive, e.g., GET, post, PUT)',
                 },
               },
               required: ['search'],
@@ -104,9 +114,28 @@ export const mcpCommand = new Command('mcp')
         if (name === 'api-list') {
           const schema = z.object({
             targetDirectory: z.string().optional(),
+            method: z.string().optional(),
           })
-          const { targetDirectory } = schema.parse(args)
-          const routes = await getApiRoutes(targetDirectory ?? null)
+          const { targetDirectory, method } = schema.parse(args)
+
+          // Validate method if provided
+          if (method) {
+            const normalizedMethod = method.toUpperCase()
+            if (!HTTP_METHODS.has(normalizedMethod)) {
+              const validMethods = Array.from(HTTP_METHODS).join(', ')
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: `Error: Invalid HTTP method: ${method}\nValid methods are: ${validMethods}`,
+                  },
+                ],
+                isError: true,
+              }
+            }
+          }
+
+          const routes = await getApiRoutes(targetDirectory ?? null, method)
 
           return {
             content: [
@@ -139,9 +168,28 @@ export const mcpCommand = new Command('mcp')
           const schema = z.object({
             targetDirectory: z.string().optional(),
             search: z.string(),
+            method: z.string().optional(),
           })
-          const { targetDirectory, search } = schema.parse(args)
-          const routes = await getApiRoutes(targetDirectory ?? null)
+          const { targetDirectory, search, method } = schema.parse(args)
+
+          // Validate method if provided
+          if (method) {
+            const normalizedMethod = method.toUpperCase()
+            if (!HTTP_METHODS.has(normalizedMethod)) {
+              const validMethods = Array.from(HTTP_METHODS).join(', ')
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: `Error: Invalid HTTP method: ${method}\nValid methods are: ${validMethods}`,
+                  },
+                ],
+                isError: true,
+              }
+            }
+          }
+
+          const routes = await getApiRoutes(targetDirectory ?? null, method)
           const filteredRoutes = routes.filter((r) => r.path.includes(search))
 
           return {
