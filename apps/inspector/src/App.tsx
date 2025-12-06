@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { ApiRoutesTable } from '@/components/ApiRoutesTable'
 import { PageRoutesTable } from '@/components/PageRoutesTable'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,9 +55,19 @@ function AppContent() {
         </div>
       </header>
 
-      <main className="container mx-auto space-y-8 px-4 py-8">
-        <ApiRoutesTable />
-        <PageRoutesTable />
+      <main className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="api-routes" className="w-full">
+          <TabsList>
+            <TabsTrigger value="api-routes">API Routes</TabsTrigger>
+            <TabsTrigger value="page-routes">Page Routes</TabsTrigger>
+          </TabsList>
+          <TabsContent value="api-routes" className="mt-6">
+            <ApiRoutesTable />
+          </TabsContent>
+          <TabsContent value="page-routes" className="mt-6">
+            <PageRoutesTable />
+          </TabsContent>
+        </Tabs>
       </main>
 
       <footer className="border-t py-4">

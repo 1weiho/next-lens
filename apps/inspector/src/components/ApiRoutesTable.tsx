@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type ColumnDef } from '@tanstack/react-table'
 import { type VariantProps } from 'class-variance-authority'
 import { FileCode, Loader2, Plus, Trash2 } from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
 import { Badge, badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DataTable, SortableHeader } from '@/components/ui/data-table'
 import {
   Dialog,
   DialogContent,
@@ -14,14 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 
 type BadgeVariant = VariantProps<typeof badgeVariants>['variant']
 
@@ -74,6 +68,87 @@ export function ApiRoutesTable() {
     }
   }
 
+  const columns = useMemo<ColumnDef<RouteInfo>[]>(
+    () => [
+      {
+        accessorKey: 'methods',
+        header: 'Methods',
+        cell: ({ row }) => {
+          const methods = row.original.methods
+          return (
+            <div className="flex flex-wrap gap-1">
+              {methods.map((method) => (
+                <Badge
+                  key={method}
+                  variant={METHOD_VARIANTS[method] ?? 'outline'}
+                >
+                  {method}
+                </Badge>
+              ))}
+            </div>
+          )
+        },
+        filterFn: (row, id, value) => {
+          const methods = row.getValue(id) as string[]
+          return value.length === 0 || value.some((v: string) => methods.includes(v))
+        },
+      },
+      {
+        accessorKey: 'path',
+        header: ({ column }) => (
+          <SortableHeader column={column}>Path</SortableHeader>
+        ),
+        cell: ({ row }) => (
+          <div className="font-mono text-sm">{row.original.path}</div>
+        ),
+      },
+      {
+        accessorKey: 'file',
+        header: 'Source',
+        cell: ({ row }) => {
+          const file = row.original.file
+          return (
+            <button
+              onClick={() => handleOpenFile(file)}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <FileCode className="h-4 w-4" />
+              {file}
+            </button>
+          )
+        },
+      },
+      {
+        id: 'actions',
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const route = row.original
+          return (
+            <div className="flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setAddMethodTarget(route)}
+                title="Add HTTP method"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteTarget(route)}
+                title="Delete route"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          )
+        },
+      },
+    ],
+    [handleOpenFile],
+  )
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8 text-muted-foreground">
@@ -103,68 +178,12 @@ export function ApiRoutesTable() {
       </div>
 
       {routes && routes.length > 0 ? (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Methods</TableHead>
-                <TableHead>Path</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead className="w-[100px] text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {routes.map((route) => (
-                <TableRow key={route.file}>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {route.methods.map((method) => (
-                        <Badge
-                          key={method}
-                          variant={METHOD_VARIANTS[method] ?? 'outline'}
-                        >
-                          {method}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {route.path}
-                  </TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => handleOpenFile(route.file)}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <FileCode className="h-4 w-4" />
-                      {route.file}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setAddMethodTarget(route)}
-                        title="Add HTTP method"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteTarget(route)}
-                        title="Delete route"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={routes}
+          searchPlaceholder="Search routes by path, file, or methods..."
+          defaultSorting={[{ id: 'path', desc: false }]}
+        />
       ) : (
         <div className="py-8 text-center text-muted-foreground">
           No API routes found
