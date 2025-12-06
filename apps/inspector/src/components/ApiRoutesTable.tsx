@@ -40,7 +40,11 @@ export function ApiRoutesTable() {
   const [deleteTarget, setDeleteTarget] = useState<RouteInfo | null>(null)
   const [addMethodTarget, setAddMethodTarget] = useState<RouteInfo | null>(null)
 
-  const { data: routes, isLoading, error } = useQuery({
+  const {
+    data: routes,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['routes'],
     queryFn: api.getRoutes,
   })
@@ -115,13 +119,18 @@ export function ApiRoutesTable() {
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {route.methods.map((method) => (
-                        <Badge key={method} variant={METHOD_VARIANTS[method] ?? 'outline'}>
+                        <Badge
+                          key={method}
+                          variant={METHOD_VARIANTS[method] ?? 'outline'}
+                        >
                           {method}
                         </Badge>
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{route.path}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {route.path}
+                  </TableCell>
                   <TableCell>
                     <button
                       onClick={() => handleOpenFile(route.file)}
@@ -168,7 +177,8 @@ export function ApiRoutesTable() {
           <DialogHeader>
             <DialogTitle>Delete Route</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this route? This action cannot be undone.
+              Are you sure you want to delete this route? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
@@ -182,7 +192,9 @@ export function ApiRoutesTable() {
             </Button>
             <Button
               variant="destructive"
-              onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.file)}
+              onClick={() =>
+                deleteTarget && deleteMutation.mutate(deleteTarget.file)
+              }
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? (
@@ -199,7 +211,10 @@ export function ApiRoutesTable() {
       </Dialog>
 
       {/* Add Method Dialog */}
-      <Dialog open={!!addMethodTarget} onOpenChange={() => setAddMethodTarget(null)}>
+      <Dialog
+        open={!!addMethodTarget}
+        onOpenChange={() => setAddMethodTarget(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add HTTP Method</DialogTitle>

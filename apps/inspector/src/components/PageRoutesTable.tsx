@@ -16,7 +16,10 @@ import {
 
 type BadgeVariant = VariantProps<typeof badgeVariants>['variant']
 
-const STATUS_VARIANTS: Record<PageInfo['loading'] | PageInfo['error'], BadgeVariant> = {
+const STATUS_VARIANTS: Record<
+  PageInfo['loading'] | PageInfo['error'],
+  BadgeVariant
+> = {
   'co-located': 'secondary',
   inherited: 'outline',
   missing: 'destructive',
@@ -31,7 +34,11 @@ const STATUS_SYMBOLS: Record<string, string> = {
 export function PageRoutesTable() {
   const queryClient = useQueryClient()
 
-  const { data: pages, isLoading, error } = useQuery({
+  const {
+    data: pages,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['pages'],
     queryFn: api.getPages,
   })
@@ -127,10 +134,16 @@ export function PageRoutesTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Badge variant={STATUS_VARIANTS[page.loading]} title={`loading: ${page.loading}`}>
+                      <Badge
+                        variant={STATUS_VARIANTS[page.loading]}
+                        title={`loading: ${page.loading}`}
+                      >
                         {STATUS_SYMBOLS[page.loading]} loading
                       </Badge>
-                      <Badge variant={STATUS_VARIANTS[page.error]} title={`error: ${page.error}`}>
+                      <Badge
+                        variant={STATUS_VARIANTS[page.error]}
+                        title={`error: ${page.error}`}
+                      >
                         {STATUS_SYMBOLS[page.error]} error
                       </Badge>
                     </div>
@@ -150,7 +163,9 @@ export function PageRoutesTable() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => createLoadingMutation.mutate(page.file)}
+                          onClick={() =>
+                            createLoadingMutation.mutate(page.file)
+                          }
                           disabled={createLoadingMutation.isPending}
                         >
                           <Plus className="mr-1 h-3 w-3" />

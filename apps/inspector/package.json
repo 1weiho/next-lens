@@ -1,5 +1,5 @@
 {
-  "name": "inspector",
+  "name": "@next-lens/inspector",
   "private": true,
   "version": "0.0.0",
   "type": "module",

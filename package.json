@@ -1,32 +1,12 @@
 {
-  "name": "next-lens",
-  "version": "0.1.1",
-  "description": "A CLI companion for Next.js App Router developers that scans API routes and provides quick insights from the terminal",
+  "name": "next-lens-monorepo",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "bin": {
-    "next-lens": "dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsup && pnpm build:inspector",
-    "build:inspector": "cd src/inspector && pnpm install && pnpm build && mkdir -p ../../dist/inspector-ui && cp -r dist/* ../../dist/inspector-ui/",
-    "dev": "tsup --watch",
-    "dev:inspector": "cd src/inspector && pnpm dev",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "type:check": "tsc --noEmit --pretty",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "format:check": "prettier --check ."
   },
-  "keywords": [
-    "next",
-    "cli",
-    "typescript"
-  ],
   "author": "Yiwei Ho",
   "license": "MIT",
   "repository": {
@@ -38,20 +18,7 @@
   },
   "packageManager": "pnpm@10.18.0",
   "devDependencies": {
-    "@types/node": "^22.5.4",
     "prettier": "3.6.2",
-    "tsup": "^8.5.0",
-    "tsx": "^4.16.2",
-    "typescript": "^5.5.4",
-    "vitest": "^3.2.4"
-  },
-  "dependencies": {
-    "@hono/node-server": "^1.19.6",
-    "@modelcontextprotocol/sdk": "^1.22.0",
-    "chalk": "^5.6.2",
-    "commander": "^14.0.1",
-    "hono": "^4.10.7",
-    "open": "^11.0.0",
-    "zod": "^4.1.12"
+    "turbo": "^2.3.0"
   }
 }
