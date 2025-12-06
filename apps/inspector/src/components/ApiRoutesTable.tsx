@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { type VariantProps } from 'class-variance-authority'
 import { FileCode, Loader2, Plus, Trash2 } from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
-import { Badge, badgeVariants } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
 import {
@@ -16,17 +15,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { cn, formatPath } from '@/lib/utils'
 
-type BadgeVariant = VariantProps<typeof badgeVariants>['variant']
-
-const METHOD_VARIANTS: Record<string, BadgeVariant> = {
-  GET: 'secondary',
-  POST: 'default',
-  PUT: 'default',
-  PATCH: 'default',
-  DELETE: 'destructive',
-  HEAD: 'outline',
-  OPTIONS: 'outline',
+const METHOD_STYLES: Record<string, string> = {
+  GET: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
+  POST: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800',
+  PUT: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+  PATCH: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+  DELETE: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800',
+  HEAD: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
+  OPTIONS: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
 }
 
 export function ApiRoutesTable() {
@@ -73,14 +71,19 @@ export function ApiRoutesTable() {
       {
         accessorKey: 'methods',
         header: 'Methods',
+        size: 180,
         cell: ({ row }) => {
           const methods = row.original.methods
           return (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {methods.map((method) => (
                 <Badge
                   key={method}
-                  variant={METHOD_VARIANTS[method] ?? 'outline'}
+                  variant="outline"
+                  className={cn(
+                    "font-mono text-[10px] px-1.5 py-0.5 rounded-md border uppercase tracking-wide shadow-sm transition-all hover:brightness-95",
+                    METHOD_STYLES[method] || METHOD_STYLES.OPTIONS
+                  )}
                 >
                   {method}
                 </Badge>
@@ -98,9 +101,31 @@ export function ApiRoutesTable() {
         header: ({ column }) => (
           <SortableHeader column={column}>Path</SortableHeader>
         ),
-        cell: ({ row }) => (
-          <div className="font-mono text-sm">{row.original.path}</div>
-        ),
+        cell: ({ row }) => {
+          const path = row.original.path;
+          // Simple semantic coloring for path:
+          // /api/users/[id] -> /api/users/ is gray, [id] is accent
+          const parts = path.split('/');
+          return (
+            <div className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
+               {parts.map((part, i) => {
+                  if (!part) return null;
+                  const isParam = part.startsWith('[') || part.startsWith(':');
+                  return (
+                    <span key={i}>
+                      <span className="text-zinc-300 dark:text-zinc-700">/</span>
+                      <span className={cn(
+                        isParam ? "text-amber-600 dark:text-amber-400 font-bold" : 
+                        i === parts.length - 1 ? "text-foreground font-medium" : ""
+                      )}>
+                        {part}
+                      </span>
+                    </span>
+                  )
+               })}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'file',
@@ -110,10 +135,11 @@ export function ApiRoutesTable() {
           return (
             <button
               onClick={() => handleOpenFile(file)}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
+              title={file}
             >
-              <FileCode className="h-4 w-4" />
-              {file}
+              <FileCode className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100 shrink-0" />
+              <span className="font-mono break-all">{formatPath(file)}</span>
             </button>
           )
         },
@@ -128,6 +154,7 @@ export function ApiRoutesTable() {
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
                 onClick={() => setAddMethodTarget(route)}
                 title="Add HTTP method"
               >
@@ -136,10 +163,11 @@ export function ApiRoutesTable() {
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                 onClick={() => setDeleteTarget(route)}
                 title="Delete route"
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           )
@@ -151,66 +179,79 @@ export function ApiRoutesTable() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8 text-muted-foreground">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        Loading API routes...
+      <div className="flex min-h-[400px] flex-col items-center justify-center text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-primary/50 mb-4" />
+        <p className="text-sm animate-pulse">Scanning project routes...</p>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="py-8 text-center text-destructive">
-        Failed to load routes: {(error as Error).message}
+      <div className="min-h-[200px] flex flex-col items-center justify-center text-destructive bg-destructive/5 rounded-xl p-8 border border-destructive/20">
+        <p className="font-semibold mb-2">Failed to load routes</p>
+        <p className="text-sm opacity-80">{(error as Error).message}</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
-          API Routes
-          <span className="ml-2 text-sm font-normal text-muted-foreground">
-            ({routes?.length || 0})
-          </span>
-        </h2>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <div className="flex items-center justify-between px-1">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            API Routes
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Manage and inspect your API endpoints ({routes?.length || 0})
+          </p>
+        </div>
       </div>
 
       {routes && routes.length > 0 ? (
-        <DataTable
-          columns={columns}
-          data={routes}
-          searchPlaceholder="Search routes by path, file, or methods..."
-          defaultSorting={[{ id: 'path', desc: false }]}
-        />
+        <div className="[&_.rounded-md.border]:border-0 [&_.rounded-md.border]:shadow-sm [&_.rounded-md.border]:bg-card [&_.rounded-md.border]:ring-1 [&_.rounded-md.border]:ring-border/50">
+          <DataTable
+            columns={columns}
+            data={routes}
+            searchPlaceholder="Search endpoints..."
+            defaultSorting={[{ id: 'path', desc: false }]}
+          />
+        </div>
       ) : (
-        <div className="py-8 text-center text-muted-foreground">
-          No API routes found
+        <div className="py-12 text-center border border-dashed rounded-xl bg-muted/30">
+          <p className="text-muted-foreground">No API routes found</p>
         </div>
       )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden gap-0">
+          <DialogHeader className="p-6 pb-2">
             <DialogTitle>Delete Route</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this route? This action cannot be
-              undone.
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
-            <div className="my-4 rounded-md bg-muted p-3">
-              <p className="font-mono text-sm">{deleteTarget.file}</p>
+            <div className="px-6 py-2">
+               <div className="rounded-lg bg-muted/50 border p-3 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                     <Trash2 className="h-5 w-5 text-destructive" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="font-mono text-xs text-muted-foreground truncate">Target file</p>
+                    <p className="font-medium text-sm truncate">{deleteTarget.file}</p>
+                  </div>
+               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+          <DialogFooter className="bg-muted/30 p-6 pt-4">
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
             <Button
               variant="destructive"
+              className="shadow-sm"
               onClick={() =>
                 deleteTarget && deleteMutation.mutate(deleteTarget.file)
               }
@@ -222,7 +263,7 @@ export function ApiRoutesTable() {
                   Deleting...
                 </>
               ) : (
-                'Delete'
+                'Confirm Delete'
               )}
             </Button>
           </DialogFooter>
@@ -234,26 +275,26 @@ export function ApiRoutesTable() {
         open={!!addMethodTarget}
         onOpenChange={() => setAddMethodTarget(null)}
       >
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add HTTP Method</DialogTitle>
             <DialogDescription>
-              Select an HTTP method to add to this route.
+              Select a method to append to this route handler.
             </DialogDescription>
           </DialogHeader>
           {addMethodTarget && (
-            <>
-              <div className="my-4 rounded-md bg-muted p-3">
-                <p className="font-mono text-sm">{addMethodTarget.file}</p>
+            <div className="py-4 space-y-4">
+              <div className="rounded-md bg-muted/50 border p-3 font-mono text-xs text-muted-foreground break-all">
+                {addMethodTarget.file}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
                   .filter((method) => !addMethodTarget.methods.includes(method))
                   .map((method) => (
                     <Button
                       key={method}
                       variant="outline"
-                      size="sm"
+                      className="h-auto py-2 justify-start font-mono text-xs hover:border-primary hover:text-primary hover:bg-primary/5"
                       onClick={() =>
                         addMethodMutation.mutate({
                           file: addMethodTarget.file,
@@ -262,17 +303,13 @@ export function ApiRoutesTable() {
                       }
                       disabled={addMethodMutation.isPending}
                     >
+                      <Plus className="mr-2 h-3 w-3" />
                       {method}
                     </Button>
                   ))}
               </div>
-            </>
+            </div>
           )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setAddMethodTarget(null)}>
-              Cancel
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
