@@ -149,7 +149,10 @@ export function ApiRoutesTable() {
               className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
               title={file}
             >
-              <FileIcon fileName={file} className="opacity-70 group-hover:opacity-100" />
+              <FileIcon
+                fileName={file}
+                className="opacity-70 group-hover:opacity-100"
+              />
               <span className="font-mono break-all">{formatPath(file)}</span>
             </button>
           )
@@ -223,7 +226,10 @@ export function ApiRoutesTable() {
             <h2 className="text-2xl font-semibold tracking-tight text-foreground">
               API Routes
             </h2>
-            <Badge variant="secondary" className="rounded-full px-2.5 font-mono text-xs">
+            <Badge
+              variant="secondary"
+              className="rounded-full px-2.5 font-mono text-xs"
+            >
               {routes?.length || 0}
             </Badge>
           </div>

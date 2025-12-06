@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react'
 
 const ReactLight = (props: SVGProps<SVGSVGElement>) => (
   <svg
@@ -19,6 +19,6 @@ const ReactLight = (props: SVGProps<SVGSVGElement>) => (
       </g>
     </g>
   </svg>
-);
+)
 
-export { ReactLight };
+export { ReactLight }

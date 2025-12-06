@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react'
 
 const ReactWordmarkLight = (props: SVGProps<SVGSVGElement>) => (
   <svg
@@ -23,6 +23,6 @@ const ReactWordmarkLight = (props: SVGProps<SVGSVGElement>) => (
       </g>
     </g>
   </svg>
-);
+)
 
-export { ReactWordmarkLight };
+export { ReactWordmarkLight }

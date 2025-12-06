@@ -19,14 +19,20 @@ export function FileIcon({ fileName, className, ...props }: FileIconProps) {
       return (
         <>
           <ReactDark className={`${iconClassName} dark:hidden`} {...props} />
-          <ReactLight className={`${iconClassName} hidden dark:block`} {...props} />
+          <ReactLight
+            className={`${iconClassName} hidden dark:block`}
+            {...props}
+          />
         </>
       )
     case 'jsx':
       return (
         <>
           <ReactDark className={`${iconClassName} dark:hidden`} {...props} />
-          <ReactLight className={`${iconClassName} hidden dark:block`} {...props} />
+          <ReactLight
+            className={`${iconClassName} hidden dark:block`}
+            {...props}
+          />
         </>
       )
     case 'ts':

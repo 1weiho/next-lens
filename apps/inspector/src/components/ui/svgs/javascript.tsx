@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react'
 
 const Javascript = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props} viewBox="0 0 1052 1052">
@@ -8,6 +8,6 @@ const Javascript = (props: SVGProps<SVGSVGElement>) => (
       fill="#323330"
     />
   </svg>
-);
+)
 
-export { Javascript };
+export { Javascript }
