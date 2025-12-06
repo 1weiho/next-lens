@@ -2,7 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ApiRoutesTable } from '@/components/ApiRoutesTable'
 import { PageRoutesTable } from '@/components/PageRoutesTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
+import { ThemeProvider } from '@/components/theme-provider'
+import { ModeToggle } from '@/components/mode-toggle'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ function AppContent() {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            <ModeToggle />
             <a
               href="https://github.com/1weiho/next-lens"
               target="_blank"
@@ -111,8 +113,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppContent />
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="system" storageKey="next-lens-theme">
+      <QueryClientProvider client={queryClient}>
+        <AppContent />
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }

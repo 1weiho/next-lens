@@ -113,13 +113,13 @@ export function ApiRoutesTable() {
           // /api/users/[id] -> /api/users/ is gray, [id] is accent
           const parts = path.split('/')
           return (
-            <div className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
+            <div className="font-mono text-sm text-zinc-500 dark:text-zinc-300">
               {parts.map((part, i) => {
                 if (!part) return null
                 const isParam = part.startsWith('[') || part.startsWith(':')
                 return (
                   <span key={i}>
-                    <span className="text-zinc-300 dark:text-zinc-700">/</span>
+                    <span className="text-zinc-300 dark:text-zinc-600">/</span>
                     <span
                       className={cn(
                         isParam
@@ -219,11 +219,16 @@ export function ApiRoutesTable() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <div className="flex items-center justify-between px-1">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            API Routes
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              API Routes
+            </h2>
+            <Badge variant="secondary" className="rounded-full px-2.5 font-mono text-xs">
+              {routes?.length || 0}
+            </Badge>
+          </div>
           <p className="text-sm text-muted-foreground">
-            Manage and inspect your API endpoints ({routes?.length || 0})
+            Manage and inspect your API endpoints
           </p>
         </div>
       </div>

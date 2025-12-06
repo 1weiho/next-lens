@@ -69,8 +69,8 @@ export function PageRoutesTable() {
           const path = row.original.path || '/'
           const parts = path.split('/')
           return (
-            <div className="font-mono text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-              <Layout className="h-3 w-3 text-muted-foreground/50" />
+            <div className="font-mono text-sm text-zinc-500 dark:text-zinc-300 flex items-center gap-2">
+              <Layout className="h-3 w-3 text-muted-foreground" />
               <span>
                 {parts.map((part, i) => {
                   if (!part && i === 0) return <span key={i}>/</span>
@@ -78,7 +78,7 @@ export function PageRoutesTable() {
                   const isParam = part.startsWith('[') || part.startsWith(':')
                   return (
                     <span key={i}>
-                      <span className="text-zinc-300 dark:text-zinc-700">
+                      <span className="text-zinc-300 dark:text-zinc-600">
                         /
                       </span>
                       <span
@@ -195,11 +195,16 @@ export function PageRoutesTable() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <div className="flex items-center justify-between px-1">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            Page Routes
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              Page Routes
+            </h2>
+            <Badge variant="secondary" className="rounded-full px-2.5 font-mono text-xs">
+              {pages?.length || 0}
+            </Badge>
+          </div>
           <p className="text-sm text-muted-foreground">
-            List all page routes in your Next.js application ({pages?.length || 0})
+            List all page routes in your Next.js application
           </p>
         </div>
       </div>
