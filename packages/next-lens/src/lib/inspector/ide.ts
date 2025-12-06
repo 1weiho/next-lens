@@ -1,63 +1,14 @@
-import { execFile } from 'child_process'
-import { promisify } from 'util'
-
-import open from 'open'
-
-const execFileAsync = promisify(execFile)
-
-type IDE = 'vscode' | 'cursor' | 'webstorm' | 'default'
-
-/**
- * Detect the user's preferred IDE from environment variables
- */
-export function detectIDE(): IDE {
-  const editor = process.env.VISUAL || process.env.EDITOR || ''
-
-  if (editor.includes('cursor')) return 'cursor'
-  if (editor.includes('code')) return 'vscode'
-  if (editor.includes('webstorm') || editor.includes('idea')) return 'webstorm'
-
-  return 'default'
-}
+import launchEditor from 'launch-editor'
 
 /**
  * Open a file in the user's IDE
+ *
+ * Uses launch-editor which:
+ * 1. Checks REACT_EDITOR environment variable
+ * 2. Detects running editor processes (VS Code, Cursor, WebStorm, etc.)
+ * 3. Falls back to VISUAL or EDITOR environment variables
  */
-export async function openInIDE(
-  filePath: string,
-  line?: number,
-): Promise<void> {
-  const ide = detectIDE()
-
-  const commands: Record<
-    IDE,
-    { command: string; args: string[] } | { command: null; args: [] }
-  > = {
-    cursor: {
-      command: 'cursor',
-      args: ['--goto', line ? `${filePath}:${line}` : filePath],
-    },
-    vscode: {
-      command: 'code',
-      args: ['--goto', line ? `${filePath}:${line}` : filePath],
-    },
-    webstorm: {
-      command: 'webstorm',
-      args: ['--line', String(line ?? 1), filePath],
-    },
-    default: { command: null, args: [] },
-  }
-
-  const command = commands[ide]
-
-  if (ide === 'default' || command.command === null) {
-    await open(filePath)
-  } else {
-    try {
-      await execFileAsync(command.command, command.args)
-    } catch {
-      // Fallback to system default if IDE command fails
-      await open(filePath)
-    }
-  }
+export function openInIDE(filePath: string, line?: number): void {
+  const fileLocation = line ? `${filePath}:${line}` : filePath
+  launchEditor(fileLocation)
 }
