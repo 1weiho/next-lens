@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { FileCode, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Loader2, Plus, Trash2, Code } from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
+import { FileIcon } from '@/components/ui/file-icon'
 import {
   Dialog,
   DialogContent,
@@ -148,7 +149,7 @@ export function ApiRoutesTable() {
               className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
               title={file}
             >
-              <FileCode className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100 shrink-0" />
+              <FileIcon fileName={file} className="opacity-70 group-hover:opacity-100" />
               <span className="font-mono break-all">{formatPath(file)}</span>
             </button>
           )
@@ -161,6 +162,15 @@ export function ApiRoutesTable() {
           const route = row.original
           return (
             <div className="flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                onClick={() => handleOpenFile(route.file)}
+                title="Open in IDE"
+              >
+                <Code className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"

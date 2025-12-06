@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { FileCode, Loader2, Plus, Layout } from 'lucide-react'
+import { Loader2, Layout, Code } from 'lucide-react'
 
 import { api, type PageInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
+import { FileIcon } from '@/components/ui/file-icon'
 import { cn, formatPath } from '@/lib/utils'
 
 // Refined status badges
@@ -40,8 +41,6 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export function PageRoutesTable() {
-  const queryClient = useQueryClient()
-
   const {
     data: pages,
     isLoading,
@@ -49,20 +48,6 @@ export function PageRoutesTable() {
   } = useQuery({
     queryKey: ['pages'],
     queryFn: api.getPages,
-  })
-
-  const createLoadingMutation = useMutation({
-    mutationFn: api.createLoading,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pages'] })
-    },
-  })
-
-  const createErrorMutation = useMutation({
-    mutationFn: api.createError,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pages'] })
-    },
   })
 
   const handleOpenFile = async (file: string) => {
@@ -158,7 +143,7 @@ export function PageRoutesTable() {
               className="group flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
               title={file}
             >
-              <FileCode className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100 shrink-0" />
+              <FileIcon fileName={file} className="opacity-70 group-hover:opacity-100" />
               <span className="font-mono break-all">{formatPath(file)}</span>
             </button>
           )
@@ -170,39 +155,22 @@ export function PageRoutesTable() {
         cell: ({ row }) => {
           const page = row.original
           return (
-            <div className="flex justify-end gap-2">
-              {page.loading === 'missing' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                  onClick={() => createLoadingMutation.mutate(page.file)}
-                  disabled={createLoadingMutation.isPending}
-                  title="Create loading.tsx"
-                >
-                  <Plus className="mr-1 h-3 w-3" />
-                  Add Loading
-                </Button>
-              )}
-              {page.error === 'missing' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-                  onClick={() => createErrorMutation.mutate(page.file)}
-                  disabled={createErrorMutation.isPending}
-                  title="Create error.tsx"
-                >
-                  <Plus className="mr-1 h-3 w-3" />
-                  Add Error
-                </Button>
-              )}
+            <div className="flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                onClick={() => handleOpenFile(page.file)}
+                title="Open in IDE"
+              >
+                <Code className="h-4 w-4" />
+              </Button>
             </div>
           )
         },
       },
     ],
-    [handleOpenFile, createLoadingMutation, createErrorMutation],
+    [handleOpenFile],
   )
 
   if (isLoading) {
@@ -231,7 +199,7 @@ export function PageRoutesTable() {
             Page Routes
           </h2>
           <p className="text-sm text-muted-foreground">
-            Visualize loading states and error boundaries ({pages?.length || 0})
+            List all page routes in your Next.js application ({pages?.length || 0})
           </p>
         </div>
       </div>

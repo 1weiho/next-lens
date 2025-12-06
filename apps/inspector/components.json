@@ -18,5 +18,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@svgl": "https://svgl.app/r/{name}.json"
+  }
 }
