@@ -12,8 +12,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && pnpm build:inspector",
+    "build:inspector": "cd src/inspector && pnpm install && pnpm build && mkdir -p ../../dist/inspector-ui && cp -r dist/* ../../dist/inspector-ui/",
     "dev": "tsup --watch",
+    "dev:inspector": "cd src/inspector && pnpm dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type:check": "tsc --noEmit --pretty",
@@ -44,9 +46,12 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.6",
     "@modelcontextprotocol/sdk": "^1.22.0",
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
+    "hono": "^4.10.7",
+    "open": "^11.0.0",
     "zod": "^4.1.12"
   }
 }
