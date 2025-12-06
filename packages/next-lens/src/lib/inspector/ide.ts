@@ -1,9 +1,9 @@
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 
 import open from 'open'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 type IDE = 'vscode' | 'cursor' | 'webstorm' | 'default'
 
@@ -29,20 +29,32 @@ export async function openInIDE(
 ): Promise<void> {
   const ide = detectIDE()
 
-  const commands: Record<IDE, string> = {
-    cursor: `cursor --goto "${filePath}${line ? `:${line}` : ''}"`,
-    vscode: `code --goto "${filePath}${line ? `:${line}` : ''}"`,
-    webstorm: `webstorm --line ${line || 1} "${filePath}"`,
-    default: filePath,
+  const commands: Record<
+    IDE,
+    { command: string; args: string[] } | { command: null; args: [] }
+  > = {
+    cursor: {
+      command: 'cursor',
+      args: ['--goto', line ? `${filePath}:${line}` : filePath],
+    },
+    vscode: {
+      command: 'code',
+      args: ['--goto', line ? `${filePath}:${line}` : filePath],
+    },
+    webstorm: {
+      command: 'webstorm',
+      args: ['--line', String(line ?? 1), filePath],
+    },
+    default: { command: null, args: [] },
   }
 
   const command = commands[ide]
 
-  if (ide === 'default') {
+  if (ide === 'default' || command.command === null) {
     await open(filePath)
   } else {
     try {
-      await execAsync(command)
+      await execFileAsync(command.command, command.args)
     } catch {
       // Fallback to system default if IDE command fails
       await open(filePath)
