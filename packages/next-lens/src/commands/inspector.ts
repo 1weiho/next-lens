@@ -6,6 +6,7 @@ import { startInspectorServer } from '@/lib/inspector/server'
 import { ensureDirectory, resolveTargetDirectory } from '@/lib/utils'
 
 const DEFAULT_PORT = 9453
+const DEFAULT_VITE_PORT = 5173
 
 export const inspectorCommand = new Command('inspector')
   .description('Launch the web-based route inspector UI')
@@ -19,6 +20,15 @@ export const inspectorCommand = new Command('inspector')
     String(DEFAULT_PORT),
   )
   .option('--no-open', 'Do not automatically open the browser')
+  .option(
+    '--dev',
+    'Development mode: proxy UI requests to Vite dev server for HMR',
+  )
+  .option(
+    '--vite-port <port>',
+    'Vite dev server port (used with --dev)',
+    String(DEFAULT_VITE_PORT),
+  )
   .action(async (targetDirectory, options) => {
     try {
       const resolvedTarget = resolveTargetDirectory(targetDirectory ?? null)
@@ -30,12 +40,27 @@ export const inspectorCommand = new Command('inspector')
         process.exit(1)
       }
 
+      const devMode = options.dev === true
+      const vitePort = parseInt(options.vitePort, 10)
+
+      if (devMode && (isNaN(vitePort) || vitePort < 1 || vitePort > 65535)) {
+        console.error(chalk.red('Invalid Vite port number'))
+        process.exit(1)
+      }
+
       console.log(chalk.cyanBright('Starting Next.js Route Inspector...'))
       console.log(chalk.dim(`Target: ${resolvedTarget}`))
+      if (devMode) {
+        console.log(
+          chalk.yellow(`Dev mode: proxying UI to Vite at port ${vitePort}`),
+        )
+      }
 
       await startInspectorServer({
         targetDirectory: resolvedTarget,
         port,
+        devMode,
+        vitePort,
       })
 
       const url = `http://localhost:${port}`
