@@ -23,7 +23,7 @@ function AppContent() {
         <div className="container mx-auto flex h-16 items-center justify-between px-6 max-w-7xl">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background shadow-md">
-               <svg
+              <svg
                 className="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="none"
@@ -47,10 +47,12 @@ function AppContent() {
             </div>
             <h1 className="text-lg font-bold tracking-tight">Next Lens</h1>
             <div className="h-4 w-px bg-border mx-1" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-md">Inspector</span>
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-md">
+              Inspector
+            </span>
           </div>
           <div className="flex items-center gap-4">
-             <a
+            <a
               href="https://github.com/1weiho/next-lens"
               target="_blank"
               rel="noopener noreferrer"
@@ -66,14 +68,14 @@ function AppContent() {
         <Tabs defaultValue="api-routes" className="w-full space-y-8">
           <div className="flex justify-center">
             <TabsList className="h-11 bg-muted/50 p-1 rounded-full shadow-sm border border-border/50 backdrop-blur-md">
-              <TabsTrigger 
-                value="api-routes" 
+              <TabsTrigger
+                value="api-routes"
                 className="rounded-full px-8 py-2 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:text-foreground"
               >
                 API Routes
               </TabsTrigger>
-              <TabsTrigger 
-                value="page-routes" 
+              <TabsTrigger
+                value="page-routes"
                 className="rounded-full px-8 py-2 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:text-foreground"
               >
                 Page Routes
@@ -81,19 +83,25 @@ function AppContent() {
             </TabsList>
           </div>
 
-          <TabsContent value="api-routes" className="outline-none animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="rounded-2xl border border-border/40 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm p-1">
-                <div className="bg-background/50 rounded-xl p-6">
-                  <ApiRoutesTable />
-                </div>
-             </div>
+          <TabsContent
+            value="api-routes"
+            className="outline-none animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <div className="rounded-2xl border border-border/40 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm p-1">
+              <div className="bg-background/50 rounded-xl p-6">
+                <ApiRoutesTable />
+              </div>
+            </div>
           </TabsContent>
-          <TabsContent value="page-routes" className="outline-none animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="rounded-2xl border border-border/40 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm p-1">
-                <div className="bg-background/50 rounded-xl p-6">
-                  <PageRoutesTable />
-                </div>
-             </div>
+          <TabsContent
+            value="page-routes"
+            className="outline-none animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <div className="rounded-2xl border border-border/40 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm p-1">
+              <div className="bg-background/50 rounded-xl p-6">
+                <PageRoutesTable />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>

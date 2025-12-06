@@ -21,10 +21,13 @@ const METHOD_STYLES: Record<string, string> = {
   GET: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
   POST: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800',
   PUT: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
-  PATCH: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
-  DELETE: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800',
+  PATCH:
+    'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+  DELETE:
+    'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800',
   HEAD: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
-  OPTIONS: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
+  OPTIONS:
+    'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
 }
 
 export function ApiRoutesTable() {
@@ -81,8 +84,8 @@ export function ApiRoutesTable() {
                   key={method}
                   variant="outline"
                   className={cn(
-                    "font-mono text-[10px] px-1.5 py-0.5 rounded-md border uppercase tracking-wide shadow-sm transition-all hover:brightness-95",
-                    METHOD_STYLES[method] || METHOD_STYLES.OPTIONS
+                    'font-mono text-[10px] px-1.5 py-0.5 rounded-md border uppercase tracking-wide shadow-sm transition-all hover:brightness-95',
+                    METHOD_STYLES[method] || METHOD_STYLES.OPTIONS,
                   )}
                 >
                   {method}
@@ -93,7 +96,9 @@ export function ApiRoutesTable() {
         },
         filterFn: (row, id, value) => {
           const methods = row.getValue(id) as string[]
-          return value.length === 0 || value.some((v: string) => methods.includes(v))
+          return (
+            value.length === 0 || value.some((v: string) => methods.includes(v))
+          )
         },
       },
       {
@@ -102,27 +107,32 @@ export function ApiRoutesTable() {
           <SortableHeader column={column}>Path</SortableHeader>
         ),
         cell: ({ row }) => {
-          const path = row.original.path;
+          const path = row.original.path
           // Simple semantic coloring for path:
           // /api/users/[id] -> /api/users/ is gray, [id] is accent
-          const parts = path.split('/');
+          const parts = path.split('/')
           return (
             <div className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
-               {parts.map((part, i) => {
-                  if (!part) return null;
-                  const isParam = part.startsWith('[') || part.startsWith(':');
-                  return (
-                    <span key={i}>
-                      <span className="text-zinc-300 dark:text-zinc-700">/</span>
-                      <span className={cn(
-                        isParam ? "text-amber-600 dark:text-amber-400 font-bold" : 
-                        i === parts.length - 1 ? "text-foreground font-medium" : ""
-                      )}>
-                        {part}
-                      </span>
+              {parts.map((part, i) => {
+                if (!part) return null
+                const isParam = part.startsWith('[') || part.startsWith(':')
+                return (
+                  <span key={i}>
+                    <span className="text-zinc-300 dark:text-zinc-700">/</span>
+                    <span
+                      className={cn(
+                        isParam
+                          ? 'text-amber-600 dark:text-amber-400 font-bold'
+                          : i === parts.length - 1
+                            ? 'text-foreground font-medium'
+                            : '',
+                      )}
+                    >
+                      {part}
                     </span>
-                  )
-               })}
+                  </span>
+                )
+              })}
             </div>
           )
         },
@@ -228,21 +238,23 @@ export function ApiRoutesTable() {
         <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden gap-0">
           <DialogHeader className="p-6 pb-2">
             <DialogTitle>Delete Route</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone.
-            </DialogDescription>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           {deleteTarget && (
             <div className="px-6 py-2">
-               <div className="rounded-lg bg-muted/50 border p-3 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                     <Trash2 className="h-5 w-5 text-destructive" />
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="font-mono text-xs text-muted-foreground truncate">Target file</p>
-                    <p className="font-medium text-sm truncate">{deleteTarget.file}</p>
-                  </div>
-               </div>
+              <div className="rounded-lg bg-muted/50 border p-3 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="font-mono text-xs text-muted-foreground truncate">
+                    Target file
+                  </p>
+                  <p className="font-medium text-sm truncate">
+                    {deleteTarget.file}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
           <DialogFooter className="bg-muted/30 p-6 pt-4">

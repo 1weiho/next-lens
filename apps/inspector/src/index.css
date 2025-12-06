@@ -4,7 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
 
@@ -12,7 +13,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -36,34 +37,34 @@
 :root {
   /* Refined Typography */
   font-family: var(--font-sans);
-  
+
   /* Refined Radius */
   --radius: 0.75rem;
 
   /* Light Mode - Clean, crisp, slight cool tone */
   --background: oklch(0.99 0 0); /* Slightly off-white */
   --foreground: oklch(0.13 0.02 260); /* Deep blue-black */
-  
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.02 260);
-  
+
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.02 260);
-  
+
   --primary: oklch(0.13 0.02 260);
   --primary-foreground: oklch(1 0 0);
-  
+
   --secondary: oklch(0.96 0.01 260);
   --secondary-foreground: oklch(0.13 0.02 260);
-  
+
   --muted: oklch(0.96 0.01 260);
   --muted-foreground: oklch(0.55 0.02 260);
-  
+
   --accent: oklch(0.96 0.01 260);
   --accent-foreground: oklch(0.13 0.02 260);
-  
+
   --destructive: oklch(0.6 0.15 25);
-  
+
   --border: oklch(0.92 0.01 260);
   --input: oklch(0.92 0.01 260);
   --ring: oklch(0.13 0.02 260);
@@ -73,27 +74,27 @@
   /* Dark Mode - Deep, rich, good contrast */
   --background: oklch(0.1 0.01 260);
   --foreground: oklch(0.98 0 0);
-  
+
   --card: oklch(0.12 0.01 260);
   --card-foreground: oklch(0.98 0 0);
-  
+
   --popover: oklch(0.12 0.01 260);
   --popover-foreground: oklch(0.98 0 0);
-  
+
   --primary: oklch(0.98 0 0);
   --primary-foreground: oklch(0.1 0.01 260);
-  
+
   --secondary: oklch(0.18 0.01 260);
   --secondary-foreground: oklch(0.98 0 0);
-  
+
   --muted: oklch(0.18 0.01 260);
   --muted-foreground: oklch(0.65 0.01 260);
-  
+
   --accent: oklch(0.18 0.01 260);
   --accent-foreground: oklch(0.98 0 0);
-  
+
   --destructive: oklch(0.4 0.15 25);
-  
+
   --border: oklch(0.2 0.01 260);
   --input: oklch(0.2 0.01 260);
   --ring: oklch(0.8 0 0);
@@ -105,7 +106,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/10 selection:text-primary;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+    font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv02', 'cv03';
   }
 }
 
@@ -114,7 +115,7 @@
   .glass {
     @apply backdrop-blur-md bg-white/70 dark:bg-black/70 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-black/60;
   }
-  
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

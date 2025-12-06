@@ -45,8 +45,9 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting)
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  )
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = React.useState('')
@@ -173,7 +174,10 @@ export function SortableHeader({
   column,
 }: {
   children: React.ReactNode
-  column: { toggleSorting: (desc?: boolean) => void; getIsSorted: () => false | 'asc' | 'desc' }
+  column: {
+    toggleSorting: (desc?: boolean) => void
+    getIsSorted: () => false | 'asc' | 'desc'
+  }
 }) {
   const sorted = column.getIsSorted()
   return (
