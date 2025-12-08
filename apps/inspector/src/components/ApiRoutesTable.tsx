@@ -267,11 +267,11 @@ export function ApiRoutesTable() {
                 <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
                   <Trash2 className="h-5 w-5 text-destructive" />
                 </div>
-                <div className="overflow-hidden">
-                  <p className="font-mono text-xs text-muted-foreground truncate">
+                <div className="overflow-hidden flex-1">
+                  <p className="font-mono text-xs text-muted-foreground">
                     Target file
                   </p>
-                  <p className="font-medium text-sm truncate">
+                  <p className="font-mono text-xs font-medium break-all">
                     {deleteTarget.file}
                   </p>
                 </div>
