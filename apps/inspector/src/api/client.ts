@@ -9,6 +9,8 @@ export interface PageInfo {
   path: string
   loading: 'co-located' | 'inherited' | 'missing'
   error: 'co-located' | 'inherited' | 'missing'
+  loadingPath?: string
+  errorPath?: string
 }
 
 const BASE_URL = '/api'

@@ -14,6 +14,8 @@ export type PageInfo = {
   path: string
   loading: FallbackStatus
   error: FallbackStatus
+  loadingPath?: string
+  errorPath?: string
 }
 
 const PAGE_BASENAME = 'page'
@@ -109,8 +111,8 @@ async function derivePageMeta(
   const directory = path.dirname(filePath)
   const appRootPath = path.join(root, ...segments.slice(0, appIndex + 1))
   const [loading, error] = await Promise.all([
-    resolveFallbackStatus(directory, 'loading', appRootPath),
-    resolveFallbackStatus(directory, 'error', appRootPath),
+    resolveFallbackInfo(directory, 'loading', appRootPath, root),
+    resolveFallbackInfo(directory, 'error', appRootPath, root),
   ])
 
   const normalizedFile = relativePath.split(path.sep).join('/')
@@ -118,8 +120,10 @@ async function derivePageMeta(
   return {
     file: normalizedFile,
     path: routePath,
-    loading,
-    error,
+    loading: loading.status,
+    error: error.status,
+    loadingPath: loading.path,
+    errorPath: error.path,
   }
 }
 
@@ -130,34 +134,40 @@ function shouldIncludeSegment(segment: string): boolean {
   return true
 }
 
-async function hasFallbackFile(
+async function findFallbackFile(
   directory: string,
   basename: 'loading' | 'error',
-): Promise<boolean> {
+): Promise<string | null> {
   for (const extension of FALLBACK_EXTENSIONS) {
     const candidate = path.join(directory, `${basename}${extension}`)
     try {
       const stats = await fs.stat(candidate)
-      if (stats.isFile()) return true
+      if (stats.isFile()) return candidate
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue
       throw error
     }
   }
-  return false
+  return null
 }
 
-async function resolveFallbackStatus(
+async function resolveFallbackInfo(
   directory: string,
   basename: 'loading' | 'error',
   appRootPath: string,
-): Promise<FallbackStatus> {
+  root: string,
+): Promise<{ status: FallbackStatus; path?: string }> {
   let current = directory
   let isFirst = true
 
   while (isWithinAppRoot(current, appRootPath)) {
-    if (await hasFallbackFile(current, basename)) {
-      return isFirst ? 'co-located' : 'inherited'
+    const found = await findFallbackFile(current, basename)
+    if (found) {
+      const normalized = path.relative(root, found).split(path.sep).join('/')
+      return {
+        status: isFirst ? 'co-located' : 'inherited',
+        path: normalized,
+      }
     }
 
     if (pathsEqual(current, appRootPath)) break
@@ -169,7 +179,7 @@ async function resolveFallbackStatus(
     isFirst = false
   }
 
-  return 'missing'
+  return { status: 'missing' }
 }
 
 function isWithinAppRoot(directory: string, appRootPath: string): boolean {

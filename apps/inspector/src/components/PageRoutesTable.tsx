@@ -113,10 +113,27 @@ export function PageRoutesTable() {
         header: 'Loading UI',
         cell: ({ row }) => {
           const status = row.original.loading
-          return (
+          const filePath = row.original.loadingPath
+          const badge = (
             <Badge variant="outline" className={getStatusStyles(status)}>
               {STATUS_LABELS[status] || status}
             </Badge>
+          )
+
+          if (status === 'missing' || !filePath) return badge
+
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>{badge}</TooltipTrigger>
+              <TooltipContent side="top">
+                <div className="flex items-center gap-2">
+                  <FileIcon fileName={filePath} className="h-3.5 w-3.5" />
+                  <span className="font-mono text-xs">
+                    {formatPath(filePath)}
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           )
         },
         filterFn: (row, id, value) => {
@@ -129,10 +146,27 @@ export function PageRoutesTable() {
         header: 'Error UI',
         cell: ({ row }) => {
           const status = row.original.error
-          return (
+          const filePath = row.original.errorPath
+          const badge = (
             <Badge variant="outline" className={getStatusStyles(status)}>
               {STATUS_LABELS[status] || status}
             </Badge>
+          )
+
+          if (status === 'missing' || !filePath) return badge
+
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>{badge}</TooltipTrigger>
+              <TooltipContent side="top">
+                <div className="flex items-center gap-2">
+                  <FileIcon fileName={filePath} className="h-3.5 w-3.5" />
+                  <span className="font-mono text-xs">
+                    {formatPath(filePath)}
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           )
         },
         filterFn: (row, id, value) => {
