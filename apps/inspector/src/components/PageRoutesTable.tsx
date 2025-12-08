@@ -67,34 +67,37 @@ export function PageRoutesTable() {
         ),
         cell: ({ row }) => {
           const path = row.original.path || '/'
-          const parts = path.split('/')
+          const hasLeadingSlash = path.startsWith('/')
+          const parts = path.split('/').filter(Boolean)
           return (
             <div className="font-mono text-sm text-zinc-500 dark:text-zinc-300 flex items-center gap-2">
               <Layout className="h-3 w-3 text-muted-foreground" />
-              <span>
-                {parts.map((part, i) => {
-                  if (!part && i === 0) return <span key={i}>/</span>
-                  if (!part) return null
-                  const isParam = part.startsWith('[') || part.startsWith(':')
-                  return (
-                    <span key={i}>
-                      <span className="text-zinc-300 dark:text-zinc-600">
-                        /
-                      </span>
-                      <span
-                        className={cn(
-                          isParam
-                            ? 'text-purple-600 dark:text-purple-400 font-bold'
-                            : i === parts.length - 1
-                              ? 'text-foreground font-medium'
-                              : '',
+              <span className="flex items-center">
+                {hasLeadingSlash && <span>/</span>}
+                {parts.length > 0 &&
+                  parts.map((part, i) => {
+                    const isParam = part.startsWith('[') || part.startsWith(':')
+                    return (
+                      <span key={i}>
+                        {i > 0 && (
+                          <span className="text-zinc-300 dark:text-zinc-600">
+                            /
+                          </span>
                         )}
-                      >
-                        {part}
+                        <span
+                          className={cn(
+                            isParam
+                              ? 'text-purple-600 dark:text-purple-400 font-bold'
+                              : i === parts.length - 1
+                                ? 'text-foreground font-medium'
+                                : '',
+                          )}
+                        >
+                          {part}
+                        </span>
                       </span>
-                    </span>
-                  )
-                })}
+                    )
+                  })}
               </span>
             </div>
           )
@@ -212,22 +215,6 @@ export function PageRoutesTable() {
           <p className="text-sm text-muted-foreground">
             List all page routes in your Next.js application
           </p>
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center gap-6 text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg w-fit border border-border/50">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-          <span>Present</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]" />
-          <span>Inherited</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-          <span>Missing</span>
         </div>
       </div>
 
