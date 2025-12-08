@@ -49,6 +49,12 @@ export const api = {
       body: JSON.stringify({ file, method }),
     }),
 
+  removeMethod: (file: string, method: string) =>
+    fetchJson<{ success: boolean }>('/routes/methods', {
+      method: 'DELETE',
+      body: JSON.stringify({ file, method }),
+    }),
+
   createLoading: (file: string) =>
     fetchJson<{ success: boolean; file: string }>('/pages/loading', {
       method: 'POST',

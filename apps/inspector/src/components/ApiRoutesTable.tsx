@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Loader2, Plus, Trash2, Code } from 'lucide-react'
+import { Loader2, Plus, Trash2, Code, Settings2 } from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
@@ -18,23 +18,27 @@ import {
 } from '@/components/ui/dialog'
 import { cn, formatPath } from '@/lib/utils'
 
+const METHOD_ORDER = ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+const METHOD_BADGE_BASE =
+  'font-mono text-[10px] px-2 py-0.5 rounded-full border shadow-sm uppercase tracking-wider'
 const METHOD_STYLES: Record<string, string> = {
   GET: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
+  HEAD: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800',
+  OPTIONS:
+    'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800',
   POST: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800',
   PUT: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
   PATCH:
     'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
   DELETE:
     'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800',
-  HEAD: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
-  OPTIONS:
-    'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700',
 }
 
 export function ApiRoutesTable() {
   const queryClient = useQueryClient()
   const [deleteTarget, setDeleteTarget] = useState<RouteInfo | null>(null)
-  const [addMethodTarget, setAddMethodTarget] = useState<RouteInfo | null>(null)
+  const [methodTarget, setMethodTarget] = useState<RouteInfo | null>(null)
+  const [pendingMethod, setPendingMethod] = useState<string | null>(null)
 
   const {
     data: routes,
@@ -56,10 +60,13 @@ export function ApiRoutesTable() {
   const addMethodMutation = useMutation({
     mutationFn: ({ file, method }: { file: string; method: string }) =>
       api.addMethod(file, method),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['routes'] })
-      setAddMethodTarget(null)
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] }),
+  })
+
+  const removeMethodMutation = useMutation({
+    mutationFn: ({ file, method }: { file: string; method: string }) =>
+      api.removeMethod(file, method),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] }),
   })
 
   const handleOpenFile = async (file: string) => {
@@ -68,6 +75,43 @@ export function ApiRoutesTable() {
     } catch (err) {
       console.error('Failed to open file:', err)
     }
+  }
+
+  const sortMethods = (methods: string[]) =>
+    [...methods].sort((a, b) => {
+      const indexA = METHOD_ORDER.indexOf(a)
+      const indexB = METHOD_ORDER.indexOf(b)
+      if (indexA === -1 || indexB === -1) return a.localeCompare(b)
+      return indexA - indexB
+    })
+
+  const handleMethodAction = (action: 'add' | 'remove', method: string) => {
+    if (!methodTarget) return
+
+    setPendingMethod(method)
+
+    const mutation =
+      action === 'add' ? addMethodMutation : removeMethodMutation
+
+    mutation.mutate(
+      { file: methodTarget.file, method },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['routes'] })
+          setMethodTarget((current) => {
+            if (!current) return current
+            const nextMethods =
+              action === 'add'
+                ? sortMethods([...current.methods, method])
+                : current.methods.filter((m) => m !== method)
+            return { ...current, methods: nextMethods }
+          })
+        },
+        onSettled: () => {
+          setPendingMethod(null)
+        },
+      },
+    )
   }
 
   const columns = useMemo<ColumnDef<RouteInfo>[]>(
@@ -85,7 +129,8 @@ export function ApiRoutesTable() {
                   key={method}
                   variant="outline"
                   className={cn(
-                    'font-mono text-[10px] px-1.5 py-0.5 rounded-md border uppercase tracking-wide shadow-sm transition-all hover:brightness-95',
+                    METHOD_BADGE_BASE,
+                    'transition-all hover:brightness-95',
                     METHOD_STYLES[method] || METHOD_STYLES.OPTIONS,
                   )}
                 >
@@ -178,10 +223,10 @@ export function ApiRoutesTable() {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                onClick={() => setAddMethodTarget(route)}
-                title="Add HTTP method"
+                onClick={() => setMethodTarget(route)}
+                title="Manage HTTP methods"
               >
-                <Plus className="h-4 w-4" />
+                <Settings2 className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
@@ -303,43 +348,73 @@ export function ApiRoutesTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Method Dialog */}
+      {/* Manage Methods Dialog */}
       <Dialog
-        open={!!addMethodTarget}
-        onOpenChange={() => setAddMethodTarget(null)}
+        open={!!methodTarget}
+        onOpenChange={() => {
+          setMethodTarget(null)
+          setPendingMethod(null)
+        }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Add HTTP Method</DialogTitle>
+            <DialogTitle>Manage HTTP Methods</DialogTitle>
             <DialogDescription>
-              Select a method to append to this route handler.
+              Add or remove HTTP methods for this endpoint.
             </DialogDescription>
           </DialogHeader>
-          {addMethodTarget && (
+          {methodTarget && (
             <div className="py-4 space-y-4">
               <div className="rounded-md bg-muted/50 border p-3 font-mono text-xs text-muted-foreground break-all">
-                {addMethodTarget.file}
+                {methodTarget.file}
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
-                  .filter((method) => !addMethodTarget.methods.includes(method))
-                  .map((method) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {METHOD_ORDER.map((method) => {
+                  const exists = methodTarget.methods.includes(method)
+                  const isPending =
+                    pendingMethod === method &&
+                    (addMethodMutation.isPending ||
+                      removeMethodMutation.isPending)
+
+                  return (
                     <Button
                       key={method}
                       variant="outline"
-                      className="h-auto py-2 justify-start font-mono text-xs hover:border-primary hover:text-primary hover:bg-primary/5"
+                      className={cn(
+                        'h-auto py-2 px-3 justify-between font-mono text-xs transition-all w-full text-left',
+                        exists
+                          ? 'border-destructive/40 text-destructive hover:border-destructive hover:text-destructive hover:bg-destructive/5'
+                          : 'hover:border-primary hover:text-primary hover:bg-primary/5',
+                      )}
                       onClick={() =>
-                        addMethodMutation.mutate({
-                          file: addMethodTarget.file,
-                          method,
-                        })
+                        handleMethodAction(exists ? 'remove' : 'add', method)
                       }
-                      disabled={addMethodMutation.isPending}
+                      disabled={isPending}
                     >
-                      <Plus className="mr-2 h-3 w-3" />
-                      {method}
+                      <span className="flex items-center gap-2">
+                        {isPending ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : exists ? (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        ) : (
+                          <Plus className="h-3.5 w-3.5" />
+                        )}
+                        <span className="text-[11px]">
+                          {exists ? 'Remove Method' : 'Add Method'}
+                        </span>
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          METHOD_BADGE_BASE,
+                          METHOD_STYLES[method] || METHOD_STYLES.OPTIONS,
+                        )}
+                      >
+                        {method}
+                      </Badge>
                     </Button>
-                  ))}
+                  )
+                })}
               </div>
             </div>
           )}

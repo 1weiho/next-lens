@@ -9,6 +9,7 @@ import {
   createErrorFile,
   createLoadingFile,
   deleteRouteFile,
+  removeHttpMethod,
 } from './file-operations'
 import { openInIDE } from './ide'
 
@@ -80,6 +81,31 @@ export function createApiRouter(targetDirectory: string) {
       }
 
       await addHttpMethod(fullPath, method)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // DELETE /api/routes/methods - Remove an HTTP method from a route
+  api.delete('/routes/methods', async (c) => {
+    try {
+      const { file, method } = await c.req.json<{
+        file: string
+        method: string
+      }>()
+
+      if (!file || !method) {
+        return c.json({ error: 'File and method are required' }, 400)
+      }
+
+      const fullPath = path.resolve(targetDirectory, file)
+
+      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await removeHttpMethod(fullPath, method)
       return c.json({ success: true })
     } catch (error) {
       return c.json({ error: (error as Error).message }, 500)
