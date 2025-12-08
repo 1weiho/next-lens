@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Loader2, Plus, Trash2, Code, Settings2 } from 'lucide-react'
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Code,
+  Settings2,
+  ListFilter,
+} from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { cn, formatPath } from '@/lib/utils'
 
 const METHOD_ORDER = [
@@ -47,6 +61,7 @@ export function ApiRoutesTable() {
   const [deleteTarget, setDeleteTarget] = useState<RouteInfo | null>(null)
   const [methodTarget, setMethodTarget] = useState<RouteInfo | null>(null)
   const [pendingMethod, setPendingMethod] = useState<string | null>(null)
+  const [methodFilter, setMethodFilter] = useState<string[]>([])
 
   const {
     data: routes,
@@ -120,6 +135,44 @@ export function ApiRoutesTable() {
       },
     )
   }
+
+  const availableMethods = useMemo(() => {
+    if (!routes) return []
+    const unique = new Set<string>()
+    routes.forEach((route) => {
+      route.methods.forEach((method) => unique.add(method))
+    })
+    const ordered = METHOD_ORDER.filter((method) => unique.has(method))
+    const extras = [...unique]
+      .filter((method) => !METHOD_ORDER.includes(method))
+      .sort()
+    return [...ordered, ...extras]
+  }, [routes])
+
+  const filteredRoutes = useMemo(() => {
+    if (!routes) return []
+    if (methodFilter.length === 0) return routes
+    return routes.filter((route) =>
+      route.methods.some((method) => methodFilter.includes(method)),
+    )
+  }, [routes, methodFilter])
+
+  const handleToggleMethod = (method: string, checked: boolean) => {
+    setMethodFilter((prev) => {
+      if (checked) {
+        if (prev.includes(method)) return prev
+        return [...prev, method]
+      }
+      return prev.filter((m) => m !== method)
+    })
+  }
+
+  const clearMethodFilter = () => setMethodFilter([])
+
+  const methodFilterLabel =
+    methodFilter.length === 0
+      ? 'All methods'
+      : `${methodFilter.length} selected`
 
   const columns = useMemo<ColumnDef<RouteInfo>[]>(
     () => [
@@ -295,9 +348,45 @@ export function ApiRoutesTable() {
         <div className="[&_.rounded-md.border]:border-0 [&_.rounded-md.border]:shadow-sm [&_.rounded-md.border]:bg-card [&_.rounded-md.border]:ring-1 [&_.rounded-md.border]:ring-border/50">
           <DataTable
             columns={columns}
-            data={routes}
+            data={filteredRoutes}
             searchPlaceholder="Search endpoints..."
             defaultSorting={[{ id: 'path', desc: false }]}
+            filters={
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <ListFilter className="h-4 w-4" />
+                    <span className="text-xs font-medium">
+                      {methodFilterLabel}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuCheckboxItem
+                    checked={methodFilter.length === 0}
+                    onCheckedChange={(checked) => checked && clearMethodFilter()}
+                  >
+                    All methods
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuSeparator />
+                  {availableMethods.map((method) => (
+                    <DropdownMenuCheckboxItem
+                      key={method}
+                      checked={methodFilter.includes(method)}
+                      onCheckedChange={(checked) =>
+                        handleToggleMethod(method, !!checked)
+                      }
+                    >
+                      {method}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
           />
         </div>
       ) : (

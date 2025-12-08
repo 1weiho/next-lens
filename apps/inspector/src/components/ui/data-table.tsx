@@ -38,6 +38,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState
   initialPageSize?: number
   pageSizeOptions?: number[]
+  filters?: React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +48,7 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   initialPageSize = 20,
   pageSizeOptions = [10, 20, 50, 100],
+  filters,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting)
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -114,6 +116,7 @@ export function DataTable<TData, TValue>({
               className="pl-8"
             />
           </div>
+          {filters}
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
