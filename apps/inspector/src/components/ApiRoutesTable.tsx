@@ -18,7 +18,15 @@ import {
 } from '@/components/ui/dialog'
 import { cn, formatPath } from '@/lib/utils'
 
-const METHOD_ORDER = ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+const METHOD_ORDER = [
+  'GET',
+  'HEAD',
+  'OPTIONS',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+]
 const METHOD_BADGE_BASE =
   'font-mono text-[10px] px-2 py-0.5 rounded-full border shadow-sm uppercase tracking-wider'
 const METHOD_STYLES: Record<string, string> = {
@@ -90,8 +98,7 @@ export function ApiRoutesTable() {
 
     setPendingMethod(method)
 
-    const mutation =
-      action === 'add' ? addMethodMutation : removeMethodMutation
+    const mutation = action === 'add' ? addMethodMutation : removeMethodMutation
 
     mutation.mutate(
       { file: methodTarget.file, method },
