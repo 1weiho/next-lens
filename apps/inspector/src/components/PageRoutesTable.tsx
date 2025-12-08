@@ -8,6 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
 import { FileIcon } from '@/components/ui/file-icon'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn, formatPath } from '@/lib/utils'
 
 // Refined status badges
@@ -162,15 +167,19 @@ export function PageRoutesTable() {
           const page = row.original
           return (
             <div className="flex justify-end gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                onClick={() => handleOpenFile(page.file)}
-                title="Open in IDE"
-              >
-                <Code className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    onClick={() => handleOpenFile(page.file)}
+                  >
+                    <Code className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Open in IDE</TooltipContent>
+              </Tooltip>
             </div>
           )
         },

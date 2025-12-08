@@ -30,6 +30,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn, formatPath } from '@/lib/utils'
 
 const METHOD_ORDER = [
@@ -270,33 +275,45 @@ export function ApiRoutesTable() {
           const route = row.original
           return (
             <div className="flex justify-end gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                onClick={() => handleOpenFile(route.file)}
-                title="Open in IDE"
-              >
-                <Code className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                onClick={() => setMethodTarget(route)}
-                title="Manage HTTP methods"
-              >
-                <Settings2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                onClick={() => setDeleteTarget(route)}
-                title="Delete route"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    onClick={() => handleOpenFile(route.file)}
+                  >
+                    <Code className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Open in IDE</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    onClick={() => setMethodTarget(route)}
+                  >
+                    <Settings2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Manage HTTP methods</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                    onClick={() => setDeleteTarget(route)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Delete route</TooltipContent>
+              </Tooltip>
             </div>
           )
         },
@@ -368,7 +385,9 @@ export function ApiRoutesTable() {
                 <DropdownMenuContent align="start" className="w-48">
                   <DropdownMenuCheckboxItem
                     checked={methodFilter.length === 0}
-                    onCheckedChange={(checked) => checked && clearMethodFilter()}
+                    onCheckedChange={(checked) =>
+                      checked && clearMethodFilter()
+                    }
                   >
                     All methods
                   </DropdownMenuCheckboxItem>
