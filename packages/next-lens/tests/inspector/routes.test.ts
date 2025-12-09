@@ -46,4 +46,44 @@ describe('inspector route path validation', () => {
       path.resolve(targetDirectory, relativePath),
     )
   })
+
+  it('returns 409 when loading file already exists', async () => {
+    const createLoadingSpy = vi
+      .spyOn(fileOperations, 'createLoadingFile')
+      .mockRejectedValue(
+        new fileOperations.FileExistsError('/app/blog/loading.tsx'),
+      )
+
+    const response = await api.request('/pages/loading', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ file: 'app/blog/page.tsx' }),
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'File already exists at /app/blog/loading.tsx',
+    })
+    expect(createLoadingSpy).toHaveBeenCalled()
+  })
+
+  it('returns 409 when error file already exists', async () => {
+    const createErrorSpy = vi
+      .spyOn(fileOperations, 'createErrorFile')
+      .mockRejectedValue(
+        new fileOperations.FileExistsError('/app/docs/error.tsx'),
+      )
+
+    const response = await api.request('/pages/error', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ file: 'app/docs/page.tsx' }),
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'File already exists at /app/docs/error.tsx',
+    })
+    expect(createErrorSpy).toHaveBeenCalled()
+  })
 })

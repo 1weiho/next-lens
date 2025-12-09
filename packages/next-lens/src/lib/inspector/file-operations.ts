@@ -3,6 +3,26 @@ import path from 'path'
 
 import { HTTP_METHODS } from '../api-routes'
 
+export class FileExistsError extends Error {
+  status: 409 = 409
+
+  constructor(filePath: string) {
+    super(`File already exists at ${filePath}`)
+    this.name = 'FileExistsError'
+  }
+}
+
+async function ensureFileAbsent(filePath: string) {
+  try {
+    await fs.access(filePath)
+    throw new FileExistsError(filePath)
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException
+    if (err instanceof FileExistsError) throw err
+    if (err.code !== 'ENOENT') throw err
+  }
+}
+
 const LOADING_TEMPLATE = `export default function Loading() {
   return <div>Loading...</div>
 }
@@ -48,6 +68,7 @@ export async function createLoadingFile(pageFilePath: string): Promise<string> {
   const ext = path.extname(pageFilePath)
   const loadingPath = path.join(dir, `loading${ext}`)
 
+  await ensureFileAbsent(loadingPath)
   await fs.writeFile(loadingPath, LOADING_TEMPLATE, 'utf8')
   return loadingPath
 }
@@ -60,6 +81,7 @@ export async function createErrorFile(pageFilePath: string): Promise<string> {
   const ext = path.extname(pageFilePath)
   const errorPath = path.join(dir, `error${ext}`)
 
+  await ensureFileAbsent(errorPath)
   await fs.writeFile(errorPath, ERROR_TEMPLATE, 'utf8')
   return errorPath
 }

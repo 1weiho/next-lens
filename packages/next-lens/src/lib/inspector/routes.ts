@@ -10,6 +10,7 @@ import {
   createLoadingFile,
   deletePageFile,
   deleteRouteFile,
+  FileExistsError,
   removeHttpMethod,
 } from './file-operations'
 import { openInIDE } from './ide'
@@ -166,6 +167,9 @@ export function createApiRouter(targetDirectory: string) {
       const relativePath = path.relative(targetDirectory, created)
       return c.json({ success: true, file: relativePath })
     } catch (error) {
+      if (error instanceof FileExistsError) {
+        return c.json({ error: error.message }, error.status)
+      }
       return c.json({ error: (error as Error).message }, 500)
     }
   })
@@ -189,6 +193,9 @@ export function createApiRouter(targetDirectory: string) {
       const relativePath = path.relative(targetDirectory, created)
       return c.json({ success: true, file: relativePath })
     } catch (error) {
+      if (error instanceof FileExistsError) {
+        return c.json({ error: error.message }, error.status)
+      }
       return c.json({ error: (error as Error).message }, 500)
     }
   })
