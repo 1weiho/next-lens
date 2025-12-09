@@ -4,7 +4,7 @@ const ReactWordmarkDark = (props: SVGProps<SVGSVGElement>) => (
   <svg
     {...props}
     viewBox="0 0 600 180.766722"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
   >
     <g fill="none" fillRule="evenodd">
       <g transform="translate(0, 0)" fillRule="nonzero">
