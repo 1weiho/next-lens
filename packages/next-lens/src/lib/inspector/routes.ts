@@ -18,6 +18,19 @@ import { openInIDE } from './ide'
  * Create API router for the inspector
  */
 export function createApiRouter(targetDirectory: string) {
+  const targetRoot = path.resolve(targetDirectory)
+
+  const resolveSafePath = (relativePath: string) => {
+    const fullPath = path.resolve(targetRoot, relativePath)
+    const normalized = path.relative(targetRoot, fullPath)
+
+    if (normalized.startsWith('..') || path.isAbsolute(normalized)) {
+      return null
+    }
+
+    return fullPath
+  }
+
   const api = new Hono()
 
   // GET /api/routes - List API routes
@@ -49,10 +62,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      // Security: ensure path is within target directory
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -72,10 +84,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      // Security: ensure path is within target directory
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -98,9 +109,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File and method are required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -123,9 +134,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File and method are required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -145,9 +156,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -168,9 +179,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
@@ -191,9 +202,9 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = path.resolve(targetDirectory, file)
+      const fullPath = resolveSafePath(file)
 
-      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+      if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
       }
 
