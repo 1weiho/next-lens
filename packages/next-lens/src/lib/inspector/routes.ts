@@ -8,6 +8,7 @@ import {
   addHttpMethod,
   createErrorFile,
   createLoadingFile,
+  deletePageFile,
   deleteRouteFile,
   removeHttpMethod,
 } from './file-operations'
@@ -34,6 +35,29 @@ export function createApiRouter(targetDirectory: string) {
     try {
       const pages = await getPageRoutes(targetDirectory)
       return c.json(pages)
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // DELETE /api/pages - Delete a page file
+  api.delete('/pages', async (c) => {
+    try {
+      const { file } = await c.req.json<{ file: string }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = path.resolve(targetDirectory, file)
+
+      // Security: ensure path is within target directory
+      if (!fullPath.startsWith(path.resolve(targetDirectory))) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await deletePageFile(fullPath)
+      return c.json({ success: true })
     } catch (error) {
       return c.json({ error: (error as Error).message }, 500)
     }

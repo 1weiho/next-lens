@@ -39,6 +39,12 @@ export const api = {
 
   getPages: () => fetchJson<PageInfo[]>('/pages'),
 
+  deletePage: (file: string) =>
+    fetchJson<{ success: boolean }>('/pages', {
+      method: 'DELETE',
+      body: JSON.stringify({ file }),
+    }),
+
   deleteRoute: (file: string) =>
     fetchJson<{ success: boolean }>('/routes', {
       method: 'DELETE',

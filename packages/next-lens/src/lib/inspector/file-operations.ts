@@ -34,6 +34,13 @@ export async function deleteRouteFile(filePath: string): Promise<void> {
 }
 
 /**
+ * Delete a page file
+ */
+export async function deletePageFile(filePath: string): Promise<void> {
+  await fs.unlink(filePath)
+}
+
+/**
  * Create a loading.tsx file in the same directory as the page file
  */
 export async function createLoadingFile(pageFilePath: string): Promise<string> {

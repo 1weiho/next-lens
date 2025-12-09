@@ -1,13 +1,21 @@
-import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Loader2, Layout, Code } from 'lucide-react'
+import { Loader2, Layout, Code, Trash2 } from 'lucide-react'
 
 import { api, type PageInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
 import { FileIcon } from '@/components/ui/file-icon'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Tooltip,
   TooltipContent,
@@ -46,6 +54,8 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export function PageRoutesTable() {
+  const queryClient = useQueryClient()
+  const [deleteTarget, setDeleteTarget] = useState<PageInfo | null>(null)
   const {
     data: pages,
     isLoading,
@@ -53,6 +63,14 @@ export function PageRoutesTable() {
   } = useQuery({
     queryKey: ['pages'],
     queryFn: api.getPages,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: api.deletePage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pages'] })
+      setDeleteTarget(null)
+    },
   })
 
   const handleOpenFile = async (file: string) => {
@@ -214,12 +232,25 @@ export function PageRoutesTable() {
                 </TooltipTrigger>
                 <TooltipContent side="top">Open in IDE</TooltipContent>
               </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                    onClick={() => setDeleteTarget(page)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Delete page</TooltipContent>
+              </Tooltip>
             </div>
           )
         },
       },
     ],
-    [handleOpenFile],
+    [handleOpenFile, setDeleteTarget],
   )
 
   if (isLoading) {
@@ -275,6 +306,55 @@ export function PageRoutesTable() {
           <p className="text-muted-foreground">No page routes found</p>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden gap-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle>Delete Page</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          {deleteTarget && (
+            <div className="px-6 py-2">
+              <div className="rounded-lg bg-muted/50 border p-3 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                </div>
+                <div className="overflow-hidden flex-1">
+                  <p className="font-mono text-xs text-muted-foreground">
+                    Target file
+                  </p>
+                  <p className="font-mono text-xs font-medium break-all">
+                    {deleteTarget.file}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="bg-muted/30 p-6 pt-4">
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="shadow-sm"
+              onClick={() =>
+                deleteTarget && deleteMutation.mutate(deleteTarget.file)
+              }
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Confirm Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
