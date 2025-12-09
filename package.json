@@ -8,7 +8,8 @@
     "dev": "turbo dev",
     "test": "turbo test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "type:check": "turbo type:check"
   },
   "author": "Yiwei Ho",
   "license": "MIT",
