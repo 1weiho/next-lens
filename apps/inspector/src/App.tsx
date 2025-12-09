@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { ApiRoutesTable } from '@/components/ApiRoutesTable'
 import { PageRoutesTable } from '@/components/PageRoutesTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider, useTheme } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
 
 const queryClient = new QueryClient({
@@ -15,6 +16,48 @@ const queryClient = new QueryClient({
 })
 
 function AppContent() {
+  const { theme } = useTheme()
+  const lightIcon = '/next-lens-light.svg'
+  const darkIcon = '/next-lens-dark.svg'
+
+  const [isDarkMode, setIsDarkMode] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const updateResolvedTheme = () => {
+      const prefersDark =
+        theme === 'dark' || (theme === 'system' && mediaQuery.matches)
+      setIsDarkMode(prefersDark)
+    }
+
+    updateResolvedTheme()
+
+    if (theme !== 'system') return
+
+    mediaQuery.addEventListener('change', updateResolvedTheme)
+    return () => mediaQuery.removeEventListener('change', updateResolvedTheme)
+  }, [theme])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    const favicon =
+      document.querySelector<HTMLLinkElement>('link[rel*="icon"]') ??
+      document.createElement('link')
+
+    favicon.rel = 'icon'
+    favicon.type = 'image/svg+xml'
+    favicon.href = isDarkMode ? darkIcon : lightIcon
+
+    if (!favicon.parentElement) document.head.appendChild(favicon)
+  }, [isDarkMode, darkIcon, lightIcon])
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/10 selection:text-primary font-sans">
       {/* Background Decor */}
@@ -23,29 +66,11 @@ function AppContent() {
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-6 max-w-7xl">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background shadow-md">
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2 12L12 17L22 12"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M12 2L2 7L12 12L22 7L12 2Z"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
+            <img
+              src={isDarkMode ? darkIcon : lightIcon}
+              alt="Next Lens"
+              className="h-8 w-8"
+            />
             <h1 className="text-lg font-bold tracking-tight">Next Lens</h1>
             <div className="h-4 w-px bg-border mx-1" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-md">
