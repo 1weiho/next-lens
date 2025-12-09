@@ -201,7 +201,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2">
           <span>Rows per page</span>
           <select
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="h-8 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
             value={pageSize}
             onChange={(event) => table.setPageSize(Number(event.target.value))}
           >
