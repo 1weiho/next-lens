@@ -2,6 +2,8 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import chalk from 'chalk'
+
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
@@ -164,7 +166,7 @@ export async function startInspectorServer(
         port,
       },
       (info) => {
-        console.log(`Inspector running at http://localhost:${info.port}`)
+        console.log(chalk.green('✔ Inspector server ready'))
         resolve()
       },
     )

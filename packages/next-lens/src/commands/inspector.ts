@@ -8,6 +8,11 @@ import { ensureDirectory, resolveTargetDirectory } from '@/lib/utils'
 const DEFAULT_PORT = 9453
 const DEFAULT_VITE_PORT = 5173
 
+const primary = chalk.cyanBright
+const accent = chalk.greenBright
+const subtle = chalk.dim
+const warning = chalk.yellow
+
 export const inspectorCommand = new Command('inspector')
   .description('Launch the web-based route inspector UI')
   .argument(
@@ -48,13 +53,12 @@ export const inspectorCommand = new Command('inspector')
         process.exit(1)
       }
 
-      console.log(chalk.cyanBright('Starting Next.js Route Inspector...'))
-      console.log(chalk.dim(`Target: ${resolvedTarget}`))
-      if (devMode) {
-        console.log(
-          chalk.yellow(`Dev mode: proxying UI to Vite at port ${vitePort}`),
-        )
-      }
+      printIntro({
+        target: resolvedTarget,
+        port,
+        devMode,
+        vitePort,
+      })
 
       await startInspectorServer({
         targetDirectory: resolvedTarget,
@@ -69,8 +73,11 @@ export const inspectorCommand = new Command('inspector')
         await open(url)
       }
 
-      console.log(chalk.green(`Inspector available at ${url}`))
-      console.log(chalk.dim('Press Ctrl+C to stop'))
+      printReady({
+        url,
+        devMode,
+        vitePort,
+      })
     } catch (error) {
       console.error(
         chalk.red(`Failed to start inspector: ${(error as Error).message}`),
@@ -80,3 +87,57 @@ export const inspectorCommand = new Command('inspector')
   })
 
 export default inspectorCommand
+
+type IntroOptions = {
+  target: string
+  port: number
+  devMode: boolean
+  vitePort: number
+}
+
+function printIntro({ target, port, devMode, vitePort }: IntroOptions) {
+  const divider = chalk.dim('─'.repeat(46))
+  const badge = chalk.bgCyan.black(' NEXT LENS INSPECTOR ')
+  const rows = [
+    formatRow('Target', target),
+    formatRow('UI Port', `${port}`),
+    devMode ? formatRow('Vite Port', `localhost:${vitePort}`) : null,
+    devMode ? formatRow('Mode', warning('Dev proxy → Vite')) : null,
+  ].filter(Boolean) as string[]
+
+  console.log(
+    [
+      '',
+      divider,
+      `${badge} ${primary.bold('for Next.js')}`,
+      subtle('Manage every route from a single UI.'),
+      divider,
+      ...rows,
+      divider,
+      subtle('Starting inspector...'),
+    ].join('\n'),
+  )
+}
+
+type ReadyOptions = {
+  url: string
+  devMode: boolean
+  vitePort: number
+}
+
+function printReady({ url, devMode, vitePort }: ReadyOptions) {
+  const items = [
+    `${accent('•')} UI     ${accent(url)}`,
+    devMode
+      ? `${accent('•')} Vite   ${accent(`http://localhost:${vitePort}`)}`
+      : null,
+    subtle('Press Ctrl+C to stop'),
+  ].filter(Boolean) as string[]
+
+  console.log(['', primary.bold('Live'), ...items, ''].join('\n'))
+}
+
+function formatRow(label: string, value: string): string {
+  const padded = label.padEnd(9)
+  return `${accent('›')} ${subtle(padded)} ${chalk.white(value)}`
+}
