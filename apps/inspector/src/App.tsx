@@ -5,6 +5,7 @@ import { PageRoutesTable } from '@/components/PageRoutesTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ThemeProvider, useTheme } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
+import { Toaster } from '@/components/ui/sonner'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -141,6 +142,7 @@ export default function App() {
     <ThemeProvider defaultTheme="system" storageKey="next-lens-theme">
       <QueryClientProvider client={queryClient}>
         <AppContent />
+        <Toaster position="top-center" richColors closeButton />
       </QueryClientProvider>
     </ThemeProvider>
   )

@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn, formatPath } from '@/lib/utils'
+import { toast } from 'sonner'
 
 const METHOD_ORDER = [
   'GET',
@@ -79,22 +80,21 @@ export function ApiRoutesTable() {
 
   const deleteMutation = useMutation({
     mutationFn: api.deleteRoute,
-    onSuccess: () => {
+    onSuccess: (_, file) => {
       queryClient.invalidateQueries({ queryKey: ['routes'] })
       setDeleteTarget(null)
+      toast.success('API route deleted', { description: formatPath(file) })
     },
   })
 
   const addMethodMutation = useMutation({
     mutationFn: ({ file, method }: { file: string; method: string }) =>
       api.addMethod(file, method),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] }),
   })
 
   const removeMethodMutation = useMutation({
     mutationFn: ({ file, method }: { file: string; method: string }) =>
       api.removeMethod(file, method),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] }),
   })
 
   const handleOpenFile = async (file: string) => {
@@ -116,6 +116,7 @@ export function ApiRoutesTable() {
   const handleMethodAction = (action: 'add' | 'remove', method: string) => {
     if (!methodTarget) return
 
+    const targetFile = methodTarget.file
     setPendingMethod(method)
 
     const mutation = action === 'add' ? addMethodMutation : removeMethodMutation
@@ -133,6 +134,10 @@ export function ApiRoutesTable() {
                 : current.methods.filter((m) => m !== method)
             return { ...current, methods: nextMethods }
           })
+          toast.success(
+            action === 'add' ? 'HTTP method added' : 'HTTP method removed',
+            { description: `${method} · ${formatPath(targetFile)}` },
+          )
         },
         onSettled: () => {
           setPendingMethod(null)

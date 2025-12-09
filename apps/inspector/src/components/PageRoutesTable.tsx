@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn, formatPath } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Refined status badges
 const getStatusStyles = (status: string) => {
@@ -67,9 +68,10 @@ export function PageRoutesTable() {
 
   const deleteMutation = useMutation({
     mutationFn: api.deletePage,
-    onSuccess: () => {
+    onSuccess: (_, file) => {
       queryClient.invalidateQueries({ queryKey: ['pages'] })
       setDeleteTarget(null)
+      toast.success('Page route deleted', { description: formatPath(file) })
     },
   })
 
