@@ -99,8 +99,8 @@ export async function startInspectorServer(
       '*',
       cors({
         origin: (origin) => {
-          if (!origin) return false
-          return allowedDevOrigins.has(origin) ? origin : false
+          if (!origin) return null
+          return allowedDevOrigins.has(origin) ? origin : null
         },
       }),
     )
