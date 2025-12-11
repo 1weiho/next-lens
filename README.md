@@ -140,7 +140,7 @@ To develop the inspector UI with HMR:
 pnpm dev
 
 # Terminal 2: Start inspector with --dev flag
-node packages/next-lens/dist/index.js inspector --dev /path/to/nextjs/project
+node packages/next-lens/dist/index.js web --dev /path/to/nextjs/project
 ```
 
 Open `http://localhost:9453` to see the inspector with HMR enabled.
