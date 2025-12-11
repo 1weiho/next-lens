@@ -13,7 +13,7 @@ const accent = chalk.greenBright
 const subtle = chalk.dim
 const warning = chalk.yellow
 
-export const inspectorCommand = new Command('inspector')
+export const inspectorCommand = new Command('web')
   .description('Launch the web-based route inspector UI')
   .argument(
     '[target-directory]',
