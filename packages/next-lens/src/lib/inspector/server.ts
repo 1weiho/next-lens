@@ -89,8 +89,22 @@ export async function startInspectorServer(
 
   const app = new Hono()
 
-  // Enable CORS for development
-  app.use('*', cors())
+  if (devMode) {
+    const allowedDevOrigins = new Set([
+      `http://localhost:${vitePort}`,
+      `http://127.0.0.1:${vitePort}`,
+    ])
+
+    app.use(
+      '*',
+      cors({
+        origin: (origin) => {
+          if (!origin) return false
+          return allowedDevOrigins.has(origin) ? origin : false
+        },
+      }),
+    )
+  }
 
   // Mount API routes
   const api = createApiRouter(targetDirectory)
