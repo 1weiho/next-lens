@@ -99,7 +99,7 @@ export async function addHttpMethod(
     throw new Error(`Invalid HTTP method: ${method}`)
   }
 
-  const content = await fs.readFile(routeFilePath, 'utf8')
+  let content = await fs.readFile(routeFilePath, 'utf8')
 
   // Check if method already exists
   const exportPattern = new RegExp(
@@ -110,16 +110,113 @@ export async function addHttpMethod(
     throw new Error(`Method ${upperMethod} already exists`)
   }
 
+  // Ensure NextRequest/NextResponse imports exist for the generated handler
+  const lines = content.split('\n')
+
+  const isValueImport = (line: string) =>
+    /^\s*import\s+\{[^}]*\}\s+from ['"]next\/server['"]/.test(line)
+  const isTypeImport = (line: string) =>
+    /^\s*import\s+type\s+\{[^}]*\}\s+from ['"]next\/server['"]/.test(line)
+
+  const hasSpecifier = (line: string, name: string) => {
+    const match = line.match(/\{([^}]+)\}/)
+    if (!match) return false
+    return match[1]
+      .split(',')
+      .map((s) => s.trim().replace(/^type\s+/, ''))
+      .includes(name)
+  }
+
+  const addSpecifier = (line: string, name: string, asType: boolean) => {
+    const match = line.match(/\{([^}]+)\}/)
+    if (!match) return line
+    const existing = match[1]
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    if (existing.some((s) => s.replace(/^type\s+/, '') === name)) return line
+    const next = [...existing, asType ? `type ${name}` : name]
+    const unique = Array.from(new Set(next))
+    return line.replace(match[0], `{ ${unique.join(', ')} }`)
+  }
+
+  const valueImportIndex = lines.findIndex(isValueImport)
+  const typeImportIndex = lines.findIndex(isTypeImport)
+
+  if (valueImportIndex !== -1) {
+    lines[valueImportIndex] = addSpecifier(
+      lines[valueImportIndex],
+      'NextResponse',
+      false,
+    )
+    lines[valueImportIndex] = addSpecifier(
+      lines[valueImportIndex],
+      'NextRequest',
+      true,
+    )
+  }
+
+  if (typeImportIndex !== -1) {
+    lines[typeImportIndex] = addSpecifier(
+      lines[typeImportIndex],
+      'NextRequest',
+      false,
+    )
+  }
+
+  const hasNextRequest = lines.some(
+    (line) =>
+      (isValueImport(line) || isTypeImport(line)) &&
+      hasSpecifier(line, 'NextRequest'),
+  )
+  const hasNextResponse = lines.some(
+    (line) => isValueImport(line) && hasSpecifier(line, 'NextResponse'),
+  )
+
+  const findInsertIndex = () => {
+    let insertIndex = 0
+    while (
+      insertIndex < lines.length &&
+      /^['"]use\s+\w+['"];?$/.test(lines[insertIndex].trim())
+    ) {
+      insertIndex++
+    }
+    return insertIndex
+  }
+
+  if (!hasNextResponse) {
+    const insertIndex =
+      valueImportIndex !== -1
+        ? valueImportIndex + 1
+        : typeImportIndex !== -1
+          ? typeImportIndex + 1
+          : findInsertIndex()
+    lines.splice(insertIndex, 0, "import { NextResponse } from 'next/server'")
+  }
+
+  if (!hasNextRequest) {
+    const insertIndex = findInsertIndex()
+    lines.splice(
+      insertIndex,
+      0,
+      "import type { NextRequest } from 'next/server'",
+    )
+  }
+
+  content = lines.join('\n')
+
+  const normalizedContent = content.endsWith('\n') ? content : `${content}\n`
+
   // Generate method template
   const template = `
-export async function ${upperMethod}(request: Request) {
+export async function ${upperMethod}(request: NextRequest) {
   // TODO: Implement ${upperMethod} handler
-  return Response.json({ message: '${upperMethod} handler' })
+  return NextResponse.json({ message: '${upperMethod} handler' })
 }
 `
 
   // Append to file
-  await fs.appendFile(routeFilePath, template, 'utf8')
+  await fs.writeFile(routeFilePath, normalizedContent + template, 'utf8')
 }
 
 /**
