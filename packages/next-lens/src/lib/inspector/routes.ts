@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises'
 import path from 'path'
 
 import { Hono } from 'hono'
@@ -16,20 +17,61 @@ import {
 import { openInIDE } from './ide'
 
 /**
+ * Validates that a path (after resolving symlinks) is within the target root.
+ * Returns null if the path escapes the target root.
+ */
+async function isPathWithinRoot(
+  targetPath: string,
+  targetRoot: string,
+): Promise<boolean> {
+  const normalized = path.relative(targetRoot, targetPath)
+  return !normalized.startsWith('..') && !path.isAbsolute(normalized)
+}
+
+/**
  * Create API router for the inspector
  */
 export function createApiRouter(targetDirectory: string) {
   const targetRoot = path.resolve(targetDirectory)
 
-  const resolveSafePath = (relativePath: string) => {
+  /**
+   * Resolves a relative path to a safe absolute path within the target root.
+   * Follows symlinks and validates that the real path is within bounds.
+   * Returns null if the path would escape the target root (including via symlinks).
+   */
+  const resolveSafePath = async (
+    relativePath: string,
+  ): Promise<string | null> => {
     const fullPath = path.resolve(targetRoot, relativePath)
     const normalized = path.relative(targetRoot, fullPath)
 
+    // Basic path traversal check
     if (normalized.startsWith('..') || path.isAbsolute(normalized)) {
       return null
     }
 
-    return fullPath
+    try {
+      // Resolve real path (following symlinks) and validate
+      const realPath = await fs.realpath(fullPath)
+      if (!(await isPathWithinRoot(realPath, targetRoot))) {
+        return null
+      }
+      return realPath
+    } catch {
+      // File doesn't exist yet - validate parent directory
+      const parentDir = path.dirname(fullPath)
+      try {
+        const realParent = await fs.realpath(parentDir)
+        if (!(await isPathWithinRoot(realParent, targetRoot))) {
+          return null
+        }
+        // Return path with resolved parent + original filename
+        return path.join(realParent, path.basename(fullPath))
+      } catch {
+        // Parent doesn't exist - the file operation will fail appropriately
+        return fullPath
+      }
+    }
   }
 
   const api = new Hono()
@@ -63,7 +105,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -85,7 +127,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -110,7 +152,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File and method are required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -135,7 +177,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File and method are required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -157,7 +199,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -183,7 +225,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
@@ -209,7 +251,7 @@ export function createApiRouter(targetDirectory: string) {
         return c.json({ error: 'File path is required' }, 400)
       }
 
-      const fullPath = resolveSafePath(file)
+      const fullPath = await resolveSafePath(file)
 
       if (!fullPath) {
         return c.json({ error: 'Invalid file path' }, 403)
