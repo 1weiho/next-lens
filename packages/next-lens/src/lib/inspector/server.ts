@@ -173,8 +173,8 @@ export async function startInspectorServer(
     }
   }
 
-  return new Promise<void>((resolve) => {
-    serve(
+  return new Promise<void>((resolve, reject) => {
+    const server = serve(
       {
         fetch: app.fetch,
         port,
@@ -184,5 +184,9 @@ export async function startInspectorServer(
         resolve()
       },
     )
+
+    server.on('error', (error) => {
+      reject(error)
+    })
   })
 }
