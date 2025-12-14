@@ -5,6 +5,7 @@ import { Command } from 'commander'
 import aboutCommand from '@/commands/about'
 import apiListCommand from '@/commands/api-list'
 import infoCommand from '@/commands/info'
+import inspectorCommand from '@/commands/inspector'
 import mcpCommand from '@/commands/mcp'
 import pageListCommand from '@/commands/page-list'
 
@@ -25,6 +26,7 @@ async function main() {
     .addCommand(apiListCommand)
     .addCommand(pageListCommand)
     .addCommand(infoCommand)
+    .addCommand(inspectorCommand)
     .addCommand(mcpCommand)
 
   await program.parseAsync(process.argv)

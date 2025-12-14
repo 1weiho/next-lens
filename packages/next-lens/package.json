@@ -1,0 +1,56 @@
+{
+  "name": "next-lens",
+  "version": "0.1.1",
+  "description": "A CLI companion for Next.js App Router developers that scans API routes and provides quick insights from the terminal",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "next-lens": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm run build:cli && pnpm run build:inspector",
+    "build:cli": "tsup",
+    "build:inspector": "pnpm --filter @next-lens/inspector run build && pnpm run copy:inspector",
+    "copy:inspector": "rm -rf dist/inspector-ui && mkdir -p dist/inspector-ui && cp -r ../../apps/inspector/dist/. dist/inspector-ui/",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type:check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "next",
+    "cli",
+    "typescript"
+  ],
+  "author": "Yiwei Ho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1weiho/next-lens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1weiho/next-lens/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "tsup": "^8.5.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1",
+    "hono": "^4.10.7",
+    "launch-editor": "^2.12.0",
+    "open": "^11.0.0",
+    "zod": "^4.1.12"
+  }
+}

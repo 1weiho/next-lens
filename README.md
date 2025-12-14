@@ -126,13 +126,24 @@ npx next-lens@latest info ~/workspaces/my-next-app
 
 ```bash
 pnpm install
-pnpm dev    # watch mode via tsup
+pnpm dev    # watch mode
 pnpm build  # produce dist/ artifacts
-pnpm type:check
 pnpm format
 ```
 
-To test the CLI, run `pnpm dev` and `npm link` inside this repo, then execute `next-lens` from any project that uses the linked binary.
+### Inspector UI
+
+To develop the inspector UI with HMR:
+
+```bash
+# Terminal 1: Start turbo dev
+pnpm dev
+
+# Terminal 2: Start inspector with --dev flag
+node packages/next-lens/dist/index.js web --dev /path/to/nextjs/project
+```
+
+Open `http://localhost:9453` to see the inspector with HMR enabled.
 
 ## License
 

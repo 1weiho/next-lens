@@ -1,0 +1,268 @@
+import fs from 'node:fs/promises'
+import path from 'path'
+
+import { Hono } from 'hono'
+
+import { getApiRoutes } from '../api-routes'
+import { getPageRoutes } from '../page-routes'
+import {
+  addHttpMethod,
+  createErrorFile,
+  createLoadingFile,
+  deletePageFile,
+  deleteRouteFile,
+  FileExistsError,
+  removeHttpMethod,
+} from './file-operations'
+import { openInIDE } from './ide'
+
+/**
+ * Validates that a path (after resolving symlinks) is within the target root.
+ * Returns null if the path escapes the target root.
+ */
+async function isPathWithinRoot(
+  targetPath: string,
+  targetRoot: string,
+): Promise<boolean> {
+  const normalized = path.relative(targetRoot, targetPath)
+  return !normalized.startsWith('..') && !path.isAbsolute(normalized)
+}
+
+/**
+ * Create API router for the inspector
+ */
+export function createApiRouter(targetDirectory: string) {
+  const targetRoot = path.resolve(targetDirectory)
+
+  /**
+   * Resolves a relative path to a safe absolute path within the target root.
+   * Follows symlinks and validates that the real path is within bounds.
+   * Returns null if the path would escape the target root (including via symlinks).
+   */
+  const resolveSafePath = async (
+    relativePath: string,
+  ): Promise<string | null> => {
+    const fullPath = path.resolve(targetRoot, relativePath)
+    const normalized = path.relative(targetRoot, fullPath)
+
+    // Basic path traversal check
+    if (normalized.startsWith('..') || path.isAbsolute(normalized)) {
+      return null
+    }
+
+    try {
+      // Resolve real path (following symlinks) and validate
+      const realPath = await fs.realpath(fullPath)
+      if (!(await isPathWithinRoot(realPath, targetRoot))) {
+        return null
+      }
+      return realPath
+    } catch {
+      // File doesn't exist yet - validate parent directory
+      const parentDir = path.dirname(fullPath)
+      try {
+        const realParent = await fs.realpath(parentDir)
+        if (!(await isPathWithinRoot(realParent, targetRoot))) {
+          return null
+        }
+        // Return path with resolved parent + original filename
+        return path.join(realParent, path.basename(fullPath))
+      } catch {
+        // Parent doesn't exist - the file operation will fail appropriately
+        return fullPath
+      }
+    }
+  }
+
+  const api = new Hono()
+
+  // GET /api/routes - List API routes
+  api.get('/routes', async (c) => {
+    try {
+      const routes = await getApiRoutes(targetDirectory)
+      return c.json(routes)
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // GET /api/pages - List page routes
+  api.get('/pages', async (c) => {
+    try {
+      const pages = await getPageRoutes(targetDirectory)
+      return c.json(pages)
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // DELETE /api/pages - Delete a page file
+  api.delete('/pages', async (c) => {
+    try {
+      const { file } = await c.req.json<{ file: string }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await deletePageFile(fullPath)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // DELETE /api/routes - Delete a route file
+  api.delete('/routes', async (c) => {
+    try {
+      const { file } = await c.req.json<{ file: string }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await deleteRouteFile(fullPath)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // POST /api/routes/methods - Add HTTP method to route
+  api.post('/routes/methods', async (c) => {
+    try {
+      const { file, method } = await c.req.json<{
+        file: string
+        method: string
+      }>()
+
+      if (!file || !method) {
+        return c.json({ error: 'File and method are required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await addHttpMethod(fullPath, method)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // DELETE /api/routes/methods - Remove an HTTP method from a route
+  api.delete('/routes/methods', async (c) => {
+    try {
+      const { file, method } = await c.req.json<{
+        file: string
+        method: string
+      }>()
+
+      if (!file || !method) {
+        return c.json({ error: 'File and method are required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await removeHttpMethod(fullPath, method)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // POST /api/pages/loading - Create loading.tsx
+  api.post('/pages/loading', async (c) => {
+    try {
+      const { file } = await c.req.json<{ file: string }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      const created = await createLoadingFile(fullPath)
+      const relativePath = path.relative(targetDirectory, created)
+      return c.json({ success: true, file: relativePath })
+    } catch (error) {
+      if (error instanceof FileExistsError) {
+        return c.json({ error: error.message }, error.status)
+      }
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // POST /api/pages/error - Create error.tsx
+  api.post('/pages/error', async (c) => {
+    try {
+      const { file } = await c.req.json<{ file: string }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      const created = await createErrorFile(fullPath)
+      const relativePath = path.relative(targetDirectory, created)
+      return c.json({ success: true, file: relativePath })
+    } catch (error) {
+      if (error instanceof FileExistsError) {
+        return c.json({ error: error.message }, error.status)
+      }
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  // POST /api/open-file - Open file in IDE
+  api.post('/open-file', async (c) => {
+    try {
+      const { file, line } = await c.req.json<{ file: string; line?: number }>()
+
+      if (!file) {
+        return c.json({ error: 'File path is required' }, 400)
+      }
+
+      const fullPath = await resolveSafePath(file)
+
+      if (!fullPath) {
+        return c.json({ error: 'Invalid file path' }, 403)
+      }
+
+      await openInIDE(fullPath, line)
+      return c.json({ success: true })
+    } catch (error) {
+      return c.json({ error: (error as Error).message }, 500)
+    }
+  })
+
+  return api
+}
