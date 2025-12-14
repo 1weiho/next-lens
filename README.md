@@ -1,4 +1,4 @@
-<img width="1489" height="780" alt="next-lens" src="https://github.com/user-attachments/assets/9f6f6681-1ce5-408f-9e2b-f28ca8c195e4" />
+<img width="1489" height="780" alt="next-lens" src="https://github.com/user-attachments/assets/a4d9654d-0c14-488e-b29c-5f4302bf3f16" />
 
 # next-lens
 
