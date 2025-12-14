@@ -1,3 +1,5 @@
+import { createServer } from 'node:net'
+
 import chalk from 'chalk'
 import { Command } from 'commander'
 import open from 'open'
@@ -39,8 +41,8 @@ export const inspectorCommand = new Command('web')
       const resolvedTarget = resolveTargetDirectory(targetDirectory ?? null)
       await ensureDirectory(resolvedTarget)
 
-      const port = parseInt(options.port, 10)
-      if (isNaN(port) || port < 1 || port > 65535) {
+      const requestedPort = parseInt(options.port, 10)
+      if (isNaN(requestedPort) || requestedPort < 1 || requestedPort > 65535) {
         console.error(chalk.red('Invalid port number'))
         process.exit(1)
       }
@@ -51,6 +53,12 @@ export const inspectorCommand = new Command('web')
       if (devMode && (isNaN(vitePort) || vitePort < 1 || vitePort > 65535)) {
         console.error(chalk.red('Invalid Vite port number'))
         process.exit(1)
+      }
+
+      const { port, conflictPort } = await chooseInspectorPort(requestedPort)
+
+      if (conflictPort) {
+        printPortReassignment(conflictPort, port)
       }
 
       printIntro({
@@ -78,10 +86,8 @@ export const inspectorCommand = new Command('web')
         devMode,
         vitePort,
       })
-    } catch (error) {
-      console.error(
-        chalk.red(`Failed to start inspector: ${(error as Error).message}`),
-      )
+    } catch (error: unknown) {
+      printStartupError(error)
       process.exit(1)
     }
   })
@@ -140,4 +146,90 @@ function printReady({ url, devMode, vitePort }: ReadyOptions) {
 function formatRow(label: string, value: string): string {
   const padded = label.padEnd(9)
   return `${accent('›')} ${subtle(padded)} ${chalk.white(value)}`
+}
+
+async function chooseInspectorPort(
+  preferredPort: number,
+): Promise<{ port: number; conflictPort: number | null }> {
+  let port = preferredPort
+  let conflictPort: number | null = null
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const available = await isPortAvailable(port)
+    if (available) {
+      return { port, conflictPort }
+    }
+
+    if (conflictPort === null) {
+      conflictPort = port
+    }
+
+    port += 1
+  }
+
+  throw new Error(
+    `Unable to find an open port starting at ${preferredPort}. Try --port <number>.`,
+  )
+}
+
+function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const server = createServer()
+
+    server.once('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'EADDRINUSE') {
+        resolve(false)
+      } else {
+        reject(error)
+      }
+    })
+
+    server.once('listening', () => {
+      server.close(() => resolve(true))
+    })
+
+    server.listen(port)
+  })
+}
+
+function printPortReassignment(conflictPort: number, fallbackPort: number) {
+  const badge = chalk.bgYellow.black(' PORT ')
+  const message = chalk.yellow(
+    `Port ${conflictPort} is busy. Switched to ${fallbackPort}.`,
+  )
+
+  console.log(
+    [
+      '',
+      `${badge} ${message}`,
+      subtle('Use --port <number> to pick a custom port.'),
+      '',
+    ].join('\n'),
+  )
+}
+
+function printStartupError(error: unknown) {
+  const err = error as NodeJS.ErrnoException
+  const badge = chalk.bgRed.black(' ERROR ')
+
+  if (err?.code === 'EADDRINUSE') {
+    console.error(
+      [
+        '',
+        `${badge} ${chalk.red('Port is already in use.')}`,
+        subtle('Try another port with --port <number>.'),
+        '',
+      ].join('\n'),
+    )
+    return
+  }
+
+  console.error(
+    [
+      '',
+      `${badge} ${chalk.red('Failed to start inspector.')}`,
+      subtle((error as Error).message),
+      '',
+    ].join('\n'),
+  )
 }
