@@ -1,5 +1,5 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
+import { defineConfig, globalIgnores } from 'eslint/config'
+import nextVitals from 'eslint-config-next/core-web-vitals'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -10,6 +10,6 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     '.source/**',
   ]),
-]);
+])
 
-export default eslintConfig;
+export default eslintConfig

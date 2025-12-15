@@ -1,10 +1,10 @@
-import { RootProvider } from 'fumadocs-ui/provider/next';
-import './global.css';
-import { Inter } from 'next/font/google';
+import { RootProvider } from 'fumadocs-ui/provider/next'
+import './global.css'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({
   subsets: ['latin'],
-});
+})
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
@@ -13,5 +13,5 @@ export default function Layout({ children }: LayoutProps<'/'>) {
         <RootProvider>{children}</RootProvider>
       </body>
     </html>
-  );
+  )
 }
