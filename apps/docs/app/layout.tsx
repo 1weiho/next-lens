@@ -1,6 +1,14 @@
 import { RootProvider } from 'fumadocs-ui/provider/next'
 import './global.css'
 import { Inter } from 'next/font/google'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    default: 'next-lens',
+    template: '%s | next-lens',
+  },
+}
 
 const inter = Inter({
   subsets: ['latin'],
