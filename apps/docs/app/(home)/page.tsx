@@ -33,7 +33,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/docs/quickstart"
-              className="px-6 py-1.5 rounded-xl text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+              className="px-6 py-1.5 rounded-xl text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               Quickstart
             </Link>
