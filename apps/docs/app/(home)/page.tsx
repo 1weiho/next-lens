@@ -12,16 +12,15 @@ export default function HomePage() {
         {/* Text Content */}
         <div className="flex flex-col text-left space-y-8">
           <div className="space-y-4">
-            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               next-lens
             </h1>
-            <p className="text-xl sm:text-2xl text-zinc-400 font-medium">
+            <p className="text-xl text-zinc-400">
               Visualize Your Next.js App Router
             </p>
             <p className="text-zinc-500 text-lg leading-relaxed max-w-lg">
-              Automatically scan your project to identify all routes. Explore
-              them via an intuitive UI or integrate with AI assistants using
-              MCP.
+              Automatically scan your project to identify all routes. Interact
+              through the Web UI, CLI, or MCP, choose the way you like best.
             </p>
           </div>
 
@@ -38,57 +37,6 @@ export default function HomePage() {
             >
               Quickstart
             </Link>
-          </div>
-
-          <div className="flex flex-col gap-2 text-sm text-zinc-500 pt-4">
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4 text-green-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Automatic App Router Scanning
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4 text-blue-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Model Context Protocol (MCP) Integration
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4 text-purple-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Interactive Inspector UI
-            </div>
           </div>
         </div>
 
