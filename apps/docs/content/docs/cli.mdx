@@ -1,0 +1,55 @@
+---
+title: CLI commands
+description: Reference for next-lens commands and options.
+---
+
+All commands default to the current working directory. Pass an optional
+`[target-directory]` to point at another project.
+
+- `page:list [dir]` — list App Router pages with loading/error coverage.
+- `api:list [dir] [-m, --method <METHOD>]` — list API handlers with HTTP
+  method detection.
+- `info [dir]` — show framework/runtime/package-manager snapshot.
+- `about` — print a one-page tool overview.
+- `web [dir]` — launch the inspector UI (see Inspector page).
+- `mcp` — start the MCP server for copilots/IDEs.
+
+## page:list
+
+```
+next-lens page:list [target-directory]
+```
+
+- Shows `app/**/page.*` routes.
+- Indicates loading/error fallbacks as co-located, inherited, or missing.
+- Highlights dynamic, optional, and catch-all params.
+
+## api:list
+
+```
+next-lens api:list [target-directory] --method GET
+```
+
+- Lists `app/api/**/route.*` handlers.
+- `--method` filters by HTTP verb (case-insensitive). Invalid verbs exit with
+  a helpful message.
+- Displays dynamic segments with colorized params.
+
+## info
+
+```
+next-lens info [target-directory]
+```
+
+- Reads `package.json` (if present) and node_modules to detect Next.js and
+  React versions.
+- Reports Node runtime version and package manager/lockfile.
+- Works even when `package.json` is absent, with limited output.
+
+## about
+
+```
+next-lens about
+```
+
+- Prints a concise overview of the tool and its purpose.

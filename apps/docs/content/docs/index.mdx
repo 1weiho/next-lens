@@ -1,13 +1,26 @@
 ---
-title: Hello World
-description: Your first document
+title: Next-lens Overview
+description: What next-lens does and how it helps you.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+`next-lens` is a lightweight CLI for the Next.js App Router. It scans any
+project directory, no Next.js runtime needed, and surfaces routes and stack
+details in seconds.
 
-## What is Next?
+## Highlights
+
+- List `app/api/**/route.*` with detected HTTP handlers.
+- List `app/**/page.*` with loading/error fallback coverage.
+- Colorized dynamic/optional/catch-all params for quick visual parsing.
+- Works on any target directory; defaults to the current working dir.
+- Launch a web inspector UI (`next-lens web`) for a visual view.
+- MCP server mode to expose the same tools to IDEs/copilots.
+
+## Where to start
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="Quickstart" href="/docs/quickstart" />
+  <Card title="CLI commands" href="/docs/cli" />
+  <Card title="Inspector UI" href="/docs/inspector" />
+  <Card title="MCP integration" href="/docs/mcp" />
 </Cards>

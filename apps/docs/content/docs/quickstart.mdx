@@ -1,0 +1,43 @@
+---
+title: Quickstart
+description: Install, run, and read routes in seconds.
+---
+
+Get the CLI running in a Next.js App Router project and map routes fast.
+
+## Prerequisites
+
+- Node.js 18+ (recommend matching your Next.js project requirement).
+- Access to the project directory you want to scan.
+
+## Install & run
+
+Use `npx` to run without local install:
+
+```bash
+npx next-lens@latest page:list
+```
+
+Or filter API handlers by method:
+
+```bash
+npx next-lens@latest api:list --method GET
+```
+
+Collect stack details:
+
+```bash
+npx next-lens@latest info
+```
+
+## Monorepo or alternate targets
+
+All commands accept an optional `[target-directory]` (defaults to `.`):
+
+```bash
+npx next-lens@latest page:list ./apps/web
+npx next-lens@latest api:list ../other-project --method POST
+```
+
+The CLI scans the provided directory without needing to run the Next.js
+development server.
