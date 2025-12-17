@@ -1,0 +1,32 @@
+---
+title: MCP integration
+description: Expose next-lens data to IDEs or copilots via MCP.
+---
+
+Run `next-lens mcp` to start a Model Context Protocol server that exposes the
+same route insights to supporting tools.
+
+## Configure a client
+
+Add a server entry to your MCP client (example JSON):
+
+```json
+{
+  "mcpServers": {
+    "next-lens": {
+      "command": "npx",
+      "args": ["next-lens@latest", "mcp"]
+    }
+  }
+}
+```
+
+## Available tools
+
+- `api-list` — list API routes; accepts `targetDirectory` and `method`.
+- `page-list` — list page routes; accepts `targetDirectory`.
+- `api-search` — filter API routes by `search` plus optional `method`.
+- `page-search` — filter page routes by `search`.
+
+Each tool uses the same validation as the CLI (e.g., HTTP method checking) and
+returns JSON payloads ready for client-side rendering or further filtering.
