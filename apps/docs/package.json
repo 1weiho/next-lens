@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "clsx": "^2.1.1",
     "fumadocs-core": "16.2.5",
     "fumadocs-mdx": "14.1.0",
