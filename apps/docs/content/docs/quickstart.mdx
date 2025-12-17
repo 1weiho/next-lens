@@ -10,23 +10,29 @@ Get the CLI running in a Next.js App Router project and map routes fast.
 - Node.js 18+ (recommend matching your Next.js project requirement).
 - Access to the project directory you want to scan.
 
-## Install & run
+## Run the CLI
 
-Use `npx` to run without local install:
+Launch the inspector UI
 
-```bash
+```npm
+npx next-lens@latest web
+```
+
+List pages directly from the CLI
+
+```npm
 npx next-lens@latest page:list
 ```
 
-Or filter API handlers by method:
+Or filter API handlers by method
 
-```bash
+```npm
 npx next-lens@latest api:list --method GET
 ```
 
-Collect stack details:
+Collect stack details
 
-```bash
+```npm
 npx next-lens@latest info
 ```
 
@@ -34,8 +40,11 @@ npx next-lens@latest info
 
 All commands accept an optional `[target-directory]` (defaults to `.`):
 
-```bash
+```npm
 npx next-lens@latest page:list ./apps/web
+```
+
+```npm
 npx next-lens@latest api:list ../other-project --method POST
 ```
 

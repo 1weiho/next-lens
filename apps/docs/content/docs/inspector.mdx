@@ -8,25 +8,22 @@ description: Browse routes visually with the web inspector.
 `next-lens web` runs a local server that visualizes App Router pages and API
 routes in a browser.
 
+## Features
+
+- Search and filter routes across your project.
+- Add or remove HTTP methods on an API route.
+- Open a route's source file directly in your IDE.
+
 ## Start the inspector
 
-```bash
-next-lens web [target-directory]
+```npm
+npx next-lens web [target-directory]
 ```
 
 - Defaults to the current directory.
 - Opens `http://localhost:9453` by default (pass `--no-open` to skip).
-- Validates the target path and ports before starting.
 
 ## Options
 
 - `-p, --port <port>` — server port (default `9453`).
 - `--no-open` — do not auto-open the browser.
-- `--dev` — dev mode: proxy UI requests to an existing Vite dev server.
-- `--vite-port <port>` — Vite port when `--dev` is enabled (default `5173`).
-
-## Dev workflow tips
-
-- Use `--dev` while hacking on the UI to get Vite HMR, with the CLI still
-  serving API data.
-- Press `Ctrl+C` in the terminal to stop the inspector server.

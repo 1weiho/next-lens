@@ -12,12 +12,12 @@ All commands default to the current working directory. Pass an optional
 - `info [dir]` — show framework/runtime/package-manager snapshot.
 - `about` — print a one-page tool overview.
 - `web [dir]` — launch the inspector UI (see Inspector page).
-- `mcp` — start the MCP server for copilots/IDEs.
+- `mcp` — start the MCP server.
 
 ## page:list
 
-```bash
-next-lens page:list [target-directory]
+```npm
+npx next-lens page:list [target-directory]
 ```
 
 - Shows `app/**/page.*` routes.
@@ -26,8 +26,8 @@ next-lens page:list [target-directory]
 
 ## api:list
 
-```bash
-next-lens api:list [target-directory] --method GET
+```npm
+npx next-lens api:list [target-directory] --method GET
 ```
 
 - Lists `app/api/**/route.*` handlers.
@@ -37,8 +37,8 @@ next-lens api:list [target-directory] --method GET
 
 ## info
 
-```bash
-next-lens info [target-directory]
+```npm
+npx next-lens info [target-directory]
 ```
 
 - Reads `package.json` (if present) and node_modules to detect Next.js and
@@ -48,8 +48,8 @@ next-lens info [target-directory]
 
 ## about
 
-```bash
-next-lens about
+```npm
+npx next-lens about
 ```
 
 - Prints a concise overview of the tool and its purpose.
