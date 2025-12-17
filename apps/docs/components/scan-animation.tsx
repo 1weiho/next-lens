@@ -25,9 +25,16 @@ const files = [
             type: 'folder',
             children: [
               {
-                id: 'blogs-route',
-                path: 'route.ts',
-                type: 'file',
+                id: 'blog-id',
+                path: '[blogId]',
+                type: 'folder',
+                children: [
+                  {
+                    id: 'blog-id-route',
+                    path: 'route.ts',
+                    type: 'file',
+                  },
+                ],
               },
             ],
           },
@@ -66,7 +73,8 @@ const scanOrder = [
   'app',
   'api',
   'blogs',
-  'blogs-route',
+  'blog-id',
+  'blog-id-route',
   'login',
   'login-route',
   'users',
@@ -88,9 +96,9 @@ const extractedRoutes = [
   },
   {
     method: 'GET',
-    route: '/api/blogs',
+    route: '/api/blogs/:blogId',
     type: 'API',
-    handler: 'app/api/blogs/route.ts',
+    handler: 'app/api/blogs/[blogId]/route.ts',
   },
 ]
 
