@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     default: 'next-lens',
     template: '%s | next-lens',
   },
+  openGraph: {
+    images: '/images/og-image.png',
+  },
 }
 
 const inter = Inter({

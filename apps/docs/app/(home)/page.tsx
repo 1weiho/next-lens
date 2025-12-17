@@ -1,5 +1,22 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { ScanAnimation } from '@/components/scan-animation'
+
+export const metadata: Metadata = {
+  description:
+    'A CLI that scans Next.js routes and provides quick insights from your terminal, web UI, and MCP.',
+  openGraph: {
+    description:
+      'A CLI that scans Next.js routes and provides quick insights from your terminal, web UI, and MCP.',
+    images: '/images/og-image.png',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    description:
+      'A CLI that scans Next.js routes and provides quick insights from your terminal, web UI, and MCP.',
+    images: ['/images/og-image.png'],
+  },
+}
 
 export default function HomePage() {
   return (
