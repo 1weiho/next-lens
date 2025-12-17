@@ -32,5 +32,6 @@ export function baseOptions(): BaseLayoutProps {
     nav: {
       title: <Logo />,
     },
+    githubUrl: 'https://github.com/1weiho/next-lens',
   }
 }
