@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
 import { FileIcon } from '@/components/ui/file-icon'
+import { HighlightText } from '@/components/ui/highlight-text'
 import {
   Dialog,
   DialogContent,
@@ -109,7 +110,8 @@ export function PageRoutesTable() {
                             /
                           </span>
                         )}
-                        <span
+                        <HighlightText
+                          text={part}
                           className={cn(
                             isParam
                               ? 'text-purple-600 dark:text-purple-400 font-bold'
@@ -117,9 +119,7 @@ export function PageRoutesTable() {
                                 ? 'text-foreground font-medium'
                                 : '',
                           )}
-                        >
-                          {part}
-                        </span>
+                        />
                       </span>
                     )
                   })}
@@ -209,7 +209,10 @@ export function PageRoutesTable() {
                 fileName={file}
                 className="opacity-70 group-hover:opacity-100"
               />
-              <span className="font-mono break-all">{formatPath(file)}</span>
+              <HighlightText
+                text={formatPath(file)}
+                className="font-mono break-all"
+              />
             </button>
           )
         },
