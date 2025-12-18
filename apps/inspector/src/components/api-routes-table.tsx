@@ -14,8 +14,8 @@ import { api, type RouteInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
-import { FileIcon } from '@/components/ui/file-icon'
-import { HighlightText } from '@/components/ui/highlight-text'
+import { FileIcon } from '@/components/file-icon'
+import { HighlightText } from '@/components/highlight-text'
 import {
   Dialog,
   DialogContent,

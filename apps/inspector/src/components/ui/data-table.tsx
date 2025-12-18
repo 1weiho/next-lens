@@ -21,7 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { SearchHighlightProvider } from '@/components/ui/highlight-text'
+import { SearchHighlightProvider } from '@/components/highlight-text'
 import { Input } from '@/components/ui/input'
 import {
   Table,
