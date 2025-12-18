@@ -1,8 +1,8 @@
 import type { SVGProps } from 'react'
-import { Typescript } from './svgs/typescript'
-import { Javascript } from './svgs/javascript'
-import { ReactDark } from './svgs/reactDark'
-import { ReactLight } from './svgs/reactLight'
+import { Typescript } from './ui/svgs/typescript'
+import { Javascript } from './ui/svgs/javascript'
+import { ReactDark } from './ui/svgs/reactDark'
+import { ReactLight } from './ui/svgs/reactLight'
 
 interface FileIconProps extends SVGProps<SVGSVGElement> {
   fileName: string

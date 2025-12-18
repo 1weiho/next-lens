@@ -14,7 +14,8 @@ import { api, type RouteInfo } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable, SortableHeader } from '@/components/ui/data-table'
-import { FileIcon } from '@/components/ui/file-icon'
+import { FileIcon } from '@/components/file-icon'
+import { HighlightText } from '@/components/highlight-text'
 import {
   Dialog,
   DialogContent,
@@ -235,7 +236,8 @@ export function ApiRoutesTable() {
                 return (
                   <span key={i}>
                     <span className="text-zinc-300 dark:text-zinc-600">/</span>
-                    <span
+                    <HighlightText
+                      text={part}
                       className={cn(
                         isParam
                           ? 'text-amber-600 dark:text-amber-400 font-bold'
@@ -243,9 +245,7 @@ export function ApiRoutesTable() {
                             ? 'text-foreground font-medium'
                             : '',
                       )}
-                    >
-                      {part}
-                    </span>
+                    />
                   </span>
                 )
               })}
@@ -268,7 +268,10 @@ export function ApiRoutesTable() {
                 fileName={file}
                 className="opacity-70 group-hover:opacity-100"
               />
-              <span className="font-mono break-all">{formatPath(file)}</span>
+              <HighlightText
+                text={formatPath(file)}
+                className="font-mono break-all"
+              />
             </button>
           )
         },
