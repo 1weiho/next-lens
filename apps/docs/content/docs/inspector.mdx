@@ -38,3 +38,27 @@ npx next-lens web [target-directory]
 
 - `-p, --port <port>` — server port (default `9453`).
 - `--no-open` — do not auto-open the browser.
+
+## Static Build
+
+Generate a readonly snapshot of the inspector to share or host:
+
+```npm
+npx next-lens web:build [target-directory]
+```
+
+This creates a `.next-lens` directory containing a static site with your route data embedded. The static version is **readonly** — editing, deleting, and IDE integration are disabled.
+
+### Options
+
+- `-o, --output <path>` — output directory (default `.next-lens`).
+
+### Serve the static build
+
+Use any static file server:
+
+```npm
+npx serve .next-lens
+```
+
+The static snapshot shows a "Static Snapshot" badge and the generation timestamp in the header.
