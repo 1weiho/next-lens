@@ -29,6 +29,7 @@ npx next-lens@latest [command] [target-directory]
 - `next-lens page:list [dir]` — list page routes and show `loading` / `error` coverage.
 - `next-lens info [dir]` — show Next.js / React / Node / package manager versions.
 - `next-lens web [dir]` — launch the inspector UI.
+- `next-lens web:build [dir]` — build a static readonly snapshot of the inspector.
 
 ## MCP integration
 

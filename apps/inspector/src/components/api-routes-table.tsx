@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/tooltip'
 import { cn, formatPath } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useInspector } from '@/context/inspector-context'
 
 const METHOD_ORDER = [
   'GET',
@@ -65,19 +66,26 @@ const METHOD_STYLES: Record<string, string> = {
 
 export function ApiRoutesTable() {
   const queryClient = useQueryClient()
+  const { isReadonly, staticRoutes, isLoading: contextLoading } = useInspector()
   const [deleteTarget, setDeleteTarget] = useState<RouteInfo | null>(null)
   const [methodTarget, setMethodTarget] = useState<RouteInfo | null>(null)
   const [pendingMethod, setPendingMethod] = useState<string | null>(null)
   const [methodFilter, setMethodFilter] = useState<string[]>([])
 
   const {
-    data: routes,
-    isLoading,
+    data: apiRoutes,
+    isLoading: apiLoading,
     error,
   } = useQuery({
     queryKey: ['routes'],
     queryFn: api.getRoutes,
+    // Skip API call when using static data or still determining mode
+    enabled: !contextLoading && !isReadonly,
   })
+
+  // Use static data when in readonly mode, otherwise use API data
+  const routes = isReadonly ? staticRoutes : apiRoutes
+  const isLoading = contextLoading || (!isReadonly && apiLoading)
 
   const deleteMutation = useMutation({
     mutationFn: api.deleteRoute,
@@ -276,58 +284,65 @@ export function ApiRoutesTable() {
           )
         },
       },
-      {
-        id: 'actions',
-        header: () => <div className="text-right">Actions</div>,
-        cell: ({ row }) => {
-          const route = row.original
-          return (
-            <div className="flex justify-end gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                    onClick={() => handleOpenFile(route.file)}
-                  >
-                    <Code className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">Open in IDE</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
-                    onClick={() => setMethodTarget(route)}
-                  >
-                    <Settings2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">Manage HTTP methods</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                    onClick={() => setDeleteTarget(route)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">Delete route</TooltipContent>
-              </Tooltip>
-            </div>
-          )
-        },
-      },
+      // Only include actions column when not in readonly mode
+      ...(isReadonly
+        ? []
+        : [
+            {
+              id: 'actions',
+              header: () => <div className="text-right">Actions</div>,
+              cell: ({ row }: { row: { original: RouteInfo } }) => {
+                const route = row.original
+                return (
+                  <div className="flex justify-end gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                          onClick={() => handleOpenFile(route.file)}
+                        >
+                          <Code className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">Open in IDE</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                          onClick={() => setMethodTarget(route)}
+                        >
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Manage HTTP methods
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                          onClick={() => setDeleteTarget(route)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">Delete route</TooltipContent>
+                    </Tooltip>
+                  </div>
+                )
+              },
+            },
+          ]),
     ],
-    [handleOpenFile],
+    [handleOpenFile, isReadonly],
   )
 
   if (isLoading) {

@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ThemeProvider, useTheme } from '@/components/theme-provider'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Toaster } from '@/components/ui/sonner'
+import { InspectorProvider, useInspector } from '@/context/inspector-context'
+import { Badge } from '@/components/ui/badge'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +20,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { theme } = useTheme()
+  const { isReadonly, meta } = useInspector()
   const lightIcon = '/next-lens-light.svg'
   const darkIcon = '/next-lens-dark.svg'
 
@@ -59,6 +62,14 @@ function AppContent() {
     if (!favicon.parentElement) document.head.appendChild(favicon)
   }, [isDarkMode, darkIcon, lightIcon])
 
+  const formatGeneratedAt = (isoString: string) => {
+    try {
+      return new Date(isoString).toLocaleString()
+    } catch {
+      return isoString
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/10 selection:text-primary font-sans">
       {/* Background Decor */}
@@ -77,8 +88,21 @@ function AppContent() {
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-md">
               Inspector
             </span>
+            {isReadonly && (
+              <Badge
+                variant="outline"
+                className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
+              >
+                Static Snapshot
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-4">
+            {isReadonly && meta && (
+              <span className="text-[10px] text-muted-foreground hidden sm:block">
+                Generated: {formatGeneratedAt(meta.generatedAt)}
+              </span>
+            )}
             <ModeToggle />
             <a
               href="https://github.com/1weiho/next-lens"
@@ -141,8 +165,10 @@ export default function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="next-lens-theme">
       <QueryClientProvider client={queryClient}>
-        <AppContent />
-        <Toaster position="top-center" richColors closeButton />
+        <InspectorProvider>
+          <AppContent />
+          <Toaster position="top-center" richColors closeButton />
+        </InspectorProvider>
       </QueryClientProvider>
     </ThemeProvider>
   )
