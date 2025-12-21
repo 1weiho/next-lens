@@ -105,6 +105,14 @@ function AppContent() {
             )}
             <ModeToggle />
             <a
+              href="https://next-lens.1wei.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4"
+            >
+              Docs
+            </a>
+            <a
               href="https://github.com/1weiho/next-lens"
               target="_blank"
               rel="noopener noreferrer"
