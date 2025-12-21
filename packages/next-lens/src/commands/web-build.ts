@@ -37,14 +37,14 @@ export const webBuildCommand = new Command('web:build')
       printIntro({ target: resolvedTarget, output: outputDir })
 
       // Step 1: Collect inspector data
-      console.log(subtle('\n  Collecting route data...'))
+      console.log(subtle('\nCollecting route data...'))
       const data = await collectInspectorData({
         targetDirectory: resolvedTarget,
         readonly: true,
       })
 
       console.log(
-        `    ${accent('✔')} Found ${data.routes.length} API routes and ${data.pages.length} page routes`,
+        `${accent('✔')} Found ${data.routes.length} API routes and ${data.pages.length} page routes`,
       )
 
       // Step 2: Find inspector UI dist
@@ -52,27 +52,27 @@ export const webBuildCommand = new Command('web:build')
       if (!inspectorUiDir) {
         console.error(
           chalk.red(
-            '\n  Error: Inspector UI not found. Please run `pnpm build:inspector` first.',
+            '\nError: Inspector UI not found. Please run `pnpm build:inspector` first.',
           ),
         )
         process.exit(1)
       }
 
       // Step 3: Create output directory
-      console.log(subtle('\n  Preparing output directory...'))
+      console.log(subtle('\nPreparing output directory...'))
       await fs.rm(outputDir, { recursive: true, force: true })
       await fs.mkdir(outputDir, { recursive: true })
 
       // Step 4: Copy inspector UI to output
-      console.log(subtle('  Copying inspector UI...'))
+      console.log(subtle('Copying inspector UI...'))
       await copyDir(inspectorUiDir, outputDir)
-      console.log(`    ${accent('✔')} Inspector UI copied`)
+      console.log(`${accent('✔')} Inspector UI copied`)
 
       // Step 5: Write inspector data JSON
-      console.log(subtle('  Writing route data...'))
+      console.log(subtle('Writing route data...'))
       const dataPath = path.join(outputDir, 'inspector-data.json')
       await fs.writeFile(dataPath, JSON.stringify(data, null, 2), 'utf8')
-      console.log(`    ${accent('✔')} Data written to inspector-data.json`)
+      console.log(`${accent('✔')} Data written to inspector-data.json`)
 
       printSuccess({ output: outputDir, data })
     } catch (error: unknown) {
@@ -131,7 +131,7 @@ type IntroOptions = {
 }
 
 function printIntro({ target, output }: IntroOptions) {
-  const divider = chalk.dim('─'.repeat(50))
+  const divider = chalk.dim('─'.repeat(70))
   const badge = chalk.bgCyan.black(' NEXT LENS ')
 
   console.log(
@@ -141,6 +141,7 @@ function printIntro({ target, output }: IntroOptions) {
       `${badge} ${primary.bold('Static Inspector Build')}`,
       subtle('Generate a readonly snapshot of your project routes.'),
       divider,
+      '',
       formatRow('Target', target),
       formatRow('Output', output),
       divider,
@@ -149,8 +150,7 @@ function printIntro({ target, output }: IntroOptions) {
 }
 
 function formatRow(label: string, value: string): string {
-  const padded = label.padEnd(9)
-  return `  ${accent('›')} ${subtle(padded)} ${chalk.white(value)}`
+  return `${accent('›')} ${subtle(label.padEnd(6))} ${chalk.white(value)}`
 }
 
 type SuccessOptions = {
@@ -159,21 +159,21 @@ type SuccessOptions = {
 }
 
 function printSuccess({ output, data }: SuccessOptions) {
-  const divider = chalk.dim('─'.repeat(50))
+  const divider = chalk.dim('─'.repeat(70))
 
   console.log(
     [
       '',
       divider,
-      chalk.green.bold('  ✔ Build complete!'),
+      chalk.green.bold('✔ Build complete!'),
       '',
-      `  ${subtle('API Routes:')}  ${chalk.white(data.routes.length)}`,
-      `  ${subtle('Page Routes:')} ${chalk.white(data.pages.length)}`,
+      `${subtle('API Routes:')}  ${chalk.white(data.routes.length)}`,
+      `${subtle('Page Routes:')} ${chalk.white(data.pages.length)}`,
       '',
-      `  ${subtle('Output:')} ${accent(output)}`,
+      `${subtle('Output:')} ${accent(output)}`,
       '',
-      subtle('  Serve this directory with any static file server:'),
-      `  ${chalk.white(`npx serve ${path.basename(output)}`)}`,
+      subtle('Serve this directory with any static file server:'),
+      chalk.white(`npx serve ${path.basename(output)}`),
       divider,
       '',
     ].join('\n'),
@@ -186,6 +186,7 @@ function printError(error: unknown) {
     [
       '',
       `${badge} ${chalk.red('Failed to build static inspector.')}`,
+      '',
       subtle((error as Error).message),
       '',
     ].join('\n'),
