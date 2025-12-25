@@ -1,11 +1,15 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
+import open from 'open'
 
 import { chooseAvailablePort } from '@/lib/inspector/port'
 import { startInspectorServer } from '@/lib/inspector/server'
 import { ensureDirectory, resolveTargetDirectory } from '@/lib/utils'
 
 const DEFAULT_PORT = 9453
+const RAYCAST_EXTENSION_DEEPLINK =
+  'raycast://extensions/1weiho/next-lens/list-api-routes'
+const RAYCAST_STORE_URL = 'https://www.raycast.com/1weiho/next-lens'
 
 const primary = chalk.cyanBright
 const accent = chalk.greenBright
@@ -54,6 +58,9 @@ export const raycastCommand = new Command('raycast')
       })
 
       printReady({ port })
+
+      // Auto-open Raycast extension
+      await open(RAYCAST_EXTENSION_DEEPLINK)
     } catch (error: unknown) {
       printStartupError(error)
       process.exit(1)
@@ -86,10 +93,14 @@ function printIntro({ target, port }: IntroOptions) {
 }
 
 function printReady({ port }: { port: number }) {
+  const raycastHint = `${subtle('Install Raycast extension:')} ${chalk.underline(RAYCAST_STORE_URL)}`
+
   console.log(
     [
       '',
       accent(`http://localhost:${port}/api`),
+      '',
+      raycastHint,
       '',
       subtle('Press Ctrl+C to stop'),
       '',
