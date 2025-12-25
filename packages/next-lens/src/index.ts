@@ -8,6 +8,7 @@ import infoCommand from '@/commands/info'
 import inspectorCommand from '@/commands/inspector'
 import mcpCommand from '@/commands/mcp'
 import pageListCommand from '@/commands/page-list'
+import raycastCommand from '@/commands/raycast'
 import webBuildCommand from '@/commands/web-build'
 
 import packageJson from '../package.json'
@@ -28,6 +29,7 @@ async function main() {
     .addCommand(pageListCommand)
     .addCommand(infoCommand)
     .addCommand(inspectorCommand)
+    .addCommand(raycastCommand)
     .addCommand(webBuildCommand)
     .addCommand(mcpCommand)
 
