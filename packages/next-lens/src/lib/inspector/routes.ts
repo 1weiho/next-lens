@@ -3,8 +3,8 @@ import path from 'path'
 
 import { Hono } from 'hono'
 
-import { getApiRoutes } from '../api-routes'
-import { getPageRoutes } from '../page-routes'
+import { getApiRoutes, RouteInfo } from '../api-routes'
+import { getPageRoutes, PageInfo } from '../page-routes'
 import {
   addHttpMethod,
   createErrorFile,
@@ -15,6 +15,15 @@ import {
   removeHttpMethod,
 } from './file-operations'
 import { openInIDE } from './ide'
+
+export interface ApiRouterOptions {
+  /**
+   * Format for file paths in list endpoints (GET /routes, GET /pages).
+   * - 'relative': paths relative to targetDirectory (default, for web UI)
+   * - 'absolute': absolute file system paths (for raycast/external tools)
+   */
+  pathFormatForLists?: 'relative' | 'absolute'
+}
 
 /**
  * Validates that a path (after resolving symlinks) is within the target root.
@@ -29,9 +38,52 @@ async function isPathWithinRoot(
 }
 
 /**
+ * Convert a relative path to absolute path based on target root
+ */
+function toAbsolutePath(relativePath: string, targetRoot: string): string {
+  return path.resolve(targetRoot, ...relativePath.split('/'))
+}
+
+/**
+ * Transform routes to use absolute paths
+ */
+function transformRoutesToAbsolute(
+  routes: RouteInfo[],
+  targetRoot: string,
+): RouteInfo[] {
+  return routes.map((route) => ({
+    ...route,
+    file: toAbsolutePath(route.file, targetRoot),
+  }))
+}
+
+/**
+ * Transform pages to use absolute paths
+ */
+function transformPagesToAbsolute(
+  pages: PageInfo[],
+  targetRoot: string,
+): PageInfo[] {
+  return pages.map((page) => ({
+    ...page,
+    file: toAbsolutePath(page.file, targetRoot),
+    loadingPath: page.loadingPath
+      ? toAbsolutePath(page.loadingPath, targetRoot)
+      : undefined,
+    errorPath: page.errorPath
+      ? toAbsolutePath(page.errorPath, targetRoot)
+      : undefined,
+  }))
+}
+
+/**
  * Create API router for the inspector
  */
-export function createApiRouter(targetDirectory: string) {
+export function createApiRouter(
+  targetDirectory: string,
+  options: ApiRouterOptions = {},
+) {
+  const { pathFormatForLists = 'relative' } = options
   const targetRoot = path.resolve(targetDirectory)
 
   /**
@@ -80,7 +132,11 @@ export function createApiRouter(targetDirectory: string) {
   api.get('/routes', async (c) => {
     try {
       const routes = await getApiRoutes(targetDirectory)
-      return c.json(routes)
+      const result =
+        pathFormatForLists === 'absolute'
+          ? transformRoutesToAbsolute(routes, targetRoot)
+          : routes
+      return c.json(result)
     } catch (error) {
       return c.json({ error: (error as Error).message }, 500)
     }
@@ -90,7 +146,11 @@ export function createApiRouter(targetDirectory: string) {
   api.get('/pages', async (c) => {
     try {
       const pages = await getPageRoutes(targetDirectory)
-      return c.json(pages)
+      const result =
+        pathFormatForLists === 'absolute'
+          ? transformPagesToAbsolute(pages, targetRoot)
+          : pages
+      return c.json(result)
     } catch (error) {
       return c.json({ error: (error as Error).message }, 500)
     }

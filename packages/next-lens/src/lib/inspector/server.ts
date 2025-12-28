@@ -9,15 +9,46 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import { createApiRouter } from './routes'
+import { createApiRouter, ApiRouterOptions } from './routes'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export type UiMode = 'static' | 'proxy' | 'none'
+
+export interface InspectorAppOptions {
+  targetDirectory: string
+  /**
+   * UI mode:
+   * - 'static': Serve bundled inspector UI (production)
+   * - 'proxy': Proxy to Vite dev server (development)
+   * - 'none': API only, no UI (for raycast/external tools)
+   */
+  uiMode: UiMode
+  /**
+   * Vite dev server port (used when uiMode is 'proxy')
+   */
+  vitePort?: number
+  /**
+   * Format for file paths in list endpoints (GET /routes, GET /pages)
+   */
+  pathFormatForLists?: ApiRouterOptions['pathFormatForLists']
+}
 
 export interface InspectorServerOptions {
   targetDirectory: string
   port: number
   devMode?: boolean
   vitePort?: number
+  /**
+   * UI mode override. If not specified:
+   * - devMode=true → 'proxy'
+   * - devMode=false → 'static'
+   */
+  uiMode?: UiMode
+  /**
+   * Format for file paths in list endpoints
+   */
+  pathFormatForLists?: ApiRouterOptions['pathFormatForLists']
 }
 
 /**
@@ -80,16 +111,23 @@ async function proxyToVite(
 }
 
 /**
- * Start the inspector HTTP server
+ * Create the inspector Hono app with configurable UI mode and path format.
+ * This is the shared core used by both `web` and `raycast` commands.
  */
-export async function startInspectorServer(
-  options: InspectorServerOptions,
-): Promise<void> {
-  const { targetDirectory, port, devMode = false, vitePort = 5173 } = options
+export async function createInspectorApp(
+  options: InspectorAppOptions,
+): Promise<Hono> {
+  const {
+    targetDirectory,
+    uiMode,
+    vitePort = 5173,
+    pathFormatForLists = 'relative',
+  } = options
 
   const app = new Hono()
 
-  if (devMode) {
+  // Enable CORS for proxy mode (dev)
+  if (uiMode === 'proxy') {
     const allowedDevOrigins = new Set([
       `http://localhost:${vitePort}`,
       `http://127.0.0.1:${vitePort}`,
@@ -106,16 +144,17 @@ export async function startInspectorServer(
     )
   }
 
-  // Mount API routes
-  const api = createApiRouter(targetDirectory)
+  // Mount API routes with path format option
+  const api = createApiRouter(targetDirectory, { pathFormatForLists })
   app.route('/api', api)
 
-  // Dev mode: proxy all non-API requests to Vite dev server
-  if (devMode) {
+  // Configure UI based on mode
+  if (uiMode === 'proxy') {
+    // Dev mode: proxy all non-API requests to Vite dev server
     app.all('*', async (c) => {
       return proxyToVite(c.req.raw, vitePort)
     })
-  } else {
+  } else if (uiMode === 'static') {
     // Production mode: serve static files
     const staticDir = await findStaticDir()
 
@@ -172,6 +211,34 @@ export async function startInspectorServer(
       })
     }
   }
+  // uiMode === 'none': No UI routes, only API (for raycast)
+
+  return app
+}
+
+/**
+ * Start the inspector HTTP server
+ */
+export async function startInspectorServer(
+  options: InspectorServerOptions,
+): Promise<void> {
+  const {
+    targetDirectory,
+    port,
+    devMode = false,
+    vitePort = 5173,
+    pathFormatForLists = 'relative',
+  } = options
+
+  // Determine UI mode: explicit override or derive from devMode
+  const uiMode: UiMode = options.uiMode ?? (devMode ? 'proxy' : 'static')
+
+  const app = await createInspectorApp({
+    targetDirectory,
+    uiMode,
+    vitePort,
+    pathFormatForLists,
+  })
 
   return new Promise<void>((resolve, reject) => {
     const server = serve(
