@@ -1,6 +1,6 @@
 {
   "name": "next-lens",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A CLI companion for Next.js App Router developers that scans API routes and provides quick insights from the terminal",
   "type": "module",
   "main": "dist/index.js",
