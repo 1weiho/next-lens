@@ -1,4 +1,4 @@
 {
   "title": "next-lens docs",
-  "pages": ["index", "quickstart", "cli", "inspector", "mcp"]
+  "pages": ["index", "quickstart", "cli", "inspector", "mcp", "raycast"]
 }
