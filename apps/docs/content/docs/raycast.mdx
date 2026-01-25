@@ -1,0 +1,52 @@
+---
+title: Raycast Extension
+description: Browse and search routes directly from Raycast.
+---
+
+<div className="not-prose">
+  <img
+    alt="Raycast Extension"
+    src="/images/raycast.png"
+    className="rounded-lg"
+  />
+</div>
+
+The [Raycast extension](https://www.raycast.com/1weiho/next-lens) lets
+you search and browse your Next.js App Router routes directly from Raycast.
+
+<a
+  title="Install next-lens Raycast Extension"
+  href="https://www.raycast.com/1weiho/next-lens"
+>
+  <img
+    src="https://www.raycast.com/1weiho/next-lens/install_button@2x.png?v=1.1"
+    height="64"
+    alt="Install next-lens"
+    style={{ height: '64px' }}
+  />
+</a>
+
+## Start the API server
+
+The Raycast extension requires a local API server to fetch route data. Start it
+with:
+
+```npm
+npx next-lens raycast [target-directory]
+```
+
+This launches a headless API server and automatically opens the Raycast
+extension.
+
+## Options
+
+- `-p, --port <port>` — server port (default `9453`).
+
+## How it works
+
+1. Run `next-lens raycast` in your Next.js project.
+2. The CLI starts an API server exposing route data.
+3. Raycast extension connects to `http://localhost:9453/api`.
+4. Search and browse routes directly from Raycast.
+
+The server runs until you press `Ctrl+C`.
