@@ -8,6 +8,7 @@ import {
   Code,
   Settings2,
   ListFilter,
+  FileDown,
 } from 'lucide-react'
 
 import { api, type RouteInfo } from '@/api/client'
@@ -28,6 +29,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -39,6 +41,12 @@ import {
 import { cn, formatPath } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useInspector } from '@/context/inspector-context'
+import {
+  buildOpenApiDocument,
+  buildPostmanCollection,
+  buildScalarHtml,
+  downloadTextFile,
+} from '@/lib/docs-export'
 
 const METHOD_ORDER = [
   'GET',
@@ -187,6 +195,57 @@ export function ApiRoutesTable() {
   }
 
   const clearMethodFilter = () => setMethodFilter([])
+
+  const exportOpenApi = () => {
+    if (!routes || routes.length === 0) return
+
+    try {
+      const openApi = buildOpenApiDocument(routes)
+      downloadTextFile(
+        'openapi.json',
+        JSON.stringify(openApi, null, 2),
+        'application/json',
+      )
+      toast.success('OpenAPI v3 exported')
+    } catch (err) {
+      toast.error('Failed to export OpenAPI v3', {
+        description: (err as Error).message,
+      })
+    }
+  }
+
+  const exportPostman = () => {
+    if (!routes || routes.length === 0) return
+
+    try {
+      const collection = buildPostmanCollection(routes)
+      downloadTextFile(
+        'postman-collection.json',
+        JSON.stringify(collection, null, 2),
+        'application/json',
+      )
+      toast.success('Postman collection exported')
+    } catch (err) {
+      toast.error('Failed to export Postman collection', {
+        description: (err as Error).message,
+      })
+    }
+  }
+
+  const exportScalar = () => {
+    if (!routes || routes.length === 0) return
+
+    try {
+      const openApi = buildOpenApiDocument(routes)
+      const scalarHtml = buildScalarHtml(openApi)
+      downloadTextFile('scalar-docs.html', scalarHtml, 'text/html')
+      toast.success('Scalar docs exported')
+    } catch (err) {
+      toast.error('Failed to export Scalar docs', {
+        description: (err as Error).message,
+      })
+    }
+  }
 
   const methodFilterLabel =
     methodFilter.length === 0
@@ -392,42 +451,70 @@ export function ApiRoutesTable() {
             searchPlaceholder="Search endpoints..."
             defaultSorting={[{ id: 'path', desc: false }]}
             filters={
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <ListFilter className="h-4 w-4" />
-                    <span className="text-xs font-medium">
-                      {methodFilterLabel}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuCheckboxItem
-                    checked={methodFilter.length === 0}
-                    onCheckedChange={(checked) =>
-                      checked && clearMethodFilter()
-                    }
-                  >
-                    All methods
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSeparator />
-                  {availableMethods.map((method) => (
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <ListFilter className="h-4 w-4" />
+                      <span className="text-xs font-medium">
+                        {methodFilterLabel}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
                     <DropdownMenuCheckboxItem
-                      key={method}
-                      checked={methodFilter.includes(method)}
+                      checked={methodFilter.length === 0}
                       onCheckedChange={(checked) =>
-                        handleToggleMethod(method, !!checked)
+                        checked && clearMethodFilter()
                       }
                     >
-                      {method}
+                      All methods
                     </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    {availableMethods.map((method) => (
+                      <DropdownMenuCheckboxItem
+                        key={method}
+                        checked={methodFilter.includes(method)}
+                        onCheckedChange={(checked) =>
+                          handleToggleMethod(method, !!checked)
+                        }
+                      >
+                        {method}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      disabled={!routes || routes.length === 0}
+                    >
+                      <FileDown className="h-4 w-4" />
+                      <span className="text-xs font-medium">Export Docs</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={exportOpenApi}>
+                      OpenAPI v3 JSON
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={exportPostman}>
+                      Postman Collection
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={exportScalar}>
+                      Scalar Docs (HTML)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             }
           />
         </div>
