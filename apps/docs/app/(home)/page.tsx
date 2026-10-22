@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
-import { LandingHero } from '@/components/landing-hero'
+import { CallToAction } from '@/components/landing/call-to-action'
+import { Features } from '@/components/landing/features'
+import { Footer } from '@/components/landing/footer'
+import { Hero } from '@/components/landing/hero'
+import { HowItWorks } from '@/components/landing/how-it-works'
+import { Interfaces } from '@/components/landing/interfaces'
 
 export const metadata: Metadata = {
   description:
@@ -19,12 +24,15 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] py-20 px-4 overflow-hidden relative">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] -z-10" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-purple-500/10 rounded-full blur-[100px] -z-10" />
-
-      <LandingHero />
-    </main>
+    <>
+      <div className="flex-1">
+        <Hero />
+        <Features />
+        <Interfaces />
+        <HowItWorks />
+        <CallToAction />
+      </div>
+      <Footer />
+    </>
   )
 }

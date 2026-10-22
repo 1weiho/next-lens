@@ -120,7 +120,7 @@ const FileItem = ({
       <div
         className={cn(
           'flex items-center gap-2 py-1.5 px-2 rounded-md transition-all duration-150',
-          isActive ? 'bg-blue-500/20 text-blue-300' : 'text-zinc-400',
+          isActive ? 'bg-white/10 text-zinc-100' : 'text-zinc-500',
         )}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
@@ -128,14 +128,14 @@ const FileItem = ({
           <Folder
             className={cn(
               'w-4 h-4 transition-colors duration-150',
-              isActive ? 'text-blue-400' : 'text-zinc-500',
+              isActive ? 'text-zinc-100' : 'text-zinc-600',
             )}
           />
         ) : (
           <FileCode
             className={cn(
               'w-4 h-4 transition-colors duration-150',
-              isActive ? 'text-blue-400' : 'text-zinc-500',
+              isActive ? 'text-zinc-100' : 'text-zinc-600',
             )}
           />
         )}
@@ -164,9 +164,9 @@ const ResultRow = ({ route, index }: { route: any; index: number }) => (
       className={cn(
         'px-1.5 py-0.5 rounded font-bold w-12 text-center',
         route.method === 'GET'
-          ? 'bg-green-500/10 text-green-400'
+          ? 'bg-emerald-500/10 text-emerald-400'
           : route.method === 'POST'
-            ? 'bg-blue-500/10 text-blue-400'
+            ? 'bg-fuchsia-500/10 text-fuchsia-400'
             : 'bg-purple-500/10 text-purple-400',
       )}
     >
@@ -178,7 +178,7 @@ const ResultRow = ({ route, index }: { route: any; index: number }) => (
     <div className="hidden sm:block text-zinc-500 truncate max-w-[150px] text-[10px] sm:text-xs">
       {route.handler}
     </div>
-    <div className="w-2 h-2 rounded-full bg-green-500" />
+    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
   </motion.div>
 )
 
@@ -233,38 +233,38 @@ export function ScanAnimation() {
   }, [])
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-[400px] bg-zinc-950 rounded-xl overflow-hidden border border-zinc-800 shadow-2xl flex flex-col">
+    <div className="relative w-full h-[400px] bg-zinc-950 rounded-xl overflow-hidden border border-zinc-800 shadow-xl flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/50 border-b border-zinc-800 shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-            <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
           </div>
           <div className="text-xs text-zinc-500 ml-2 font-mono">next-lens</div>
         </div>
         <div className="flex items-center gap-2">
           {stage === 'scanning' && (
             <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-[10px] text-blue-400 font-medium uppercase tracking-wider">
+              <div className="w-1.5 h-1.5 bg-zinc-300 rounded-full animate-pulse" />
+              <span className="text-[10px] text-zinc-300 font-medium uppercase tracking-wider">
                 Scanning
               </span>
             </div>
           )}
           {stage === 'processing' && (
             <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-bounce" />
-              <span className="text-[10px] text-yellow-400 font-medium uppercase tracking-wider">
+              <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" />
+              <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">
                 Processing
               </span>
             </div>
           )}
           {stage === 'results' && (
             <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-              <span className="text-[10px] text-green-400 font-medium uppercase tracking-wider">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+              <span className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">
                 Done
               </span>
             </div>
@@ -286,7 +286,7 @@ export function ScanAnimation() {
               <div className="h-full flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     Scan Complete
                   </h3>
                   <span className="text-xs text-zinc-500">3 routes found</span>
@@ -336,8 +336,8 @@ export function ScanAnimation() {
                   className="absolute inset-0 flex items-center justify-center bg-zinc-950/60 backdrop-blur-sm z-20"
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                    <span className="text-xs text-blue-400 font-mono animate-pulse">
+                    <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-200 rounded-full animate-spin" />
+                    <span className="text-xs text-zinc-400 font-mono animate-pulse">
                       Analyzing structure...
                     </span>
                   </div>
@@ -356,7 +356,7 @@ export function ScanAnimation() {
           <div
             className={cn(
               'w-1.5 h-1.5 rounded-full',
-              stage === 'results' ? 'bg-green-500' : 'bg-zinc-700',
+              stage === 'results' ? 'bg-emerald-500' : 'bg-zinc-700',
             )}
           />
         </span>

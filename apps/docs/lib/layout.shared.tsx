@@ -1,7 +1,7 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
 import Image from 'next/image'
 
-function Logo() {
+export function Logo() {
   return (
     <span className="inline-flex items-center gap-2">
       <span className="relative flex h-7 w-7 items-center justify-center">
